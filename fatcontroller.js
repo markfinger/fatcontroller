@@ -1,6 +1,6 @@
 /*
     ////////////////////////////////////////////////////////////////
-    Fat Controller - Javascript Signal Transmitter
+    Fat Controller - Signal Transmission and Receipt
     https://github.com/mfinger/fatcontroller
     mark.finger@gmail.com
     ////////////////////////////////////////////////////////////////
@@ -53,12 +53,13 @@ fatcontroller = {};
         // Transmit the arguments out in fatcontroller.signal form.
         
         var signal = new fatcontroller.signal(name, data ? data : undefined);
-        if (fatcontroller.debug)
-            console.log('Fat Controller transmitting \''+signal.name+'\':', signal);
         // Transmit to all receivers
         var receivers = fatcontroller.receivers;
-        for (receiver in receivers) {
-            receivers[receiver].receive(signal);
+        for (var receiver in receivers) {
+            receiver = receivers[receiver];
+            if (fatcontroller.debug)
+                console.log('Fat Controller transmitting \''+signal.name+'\':', signal, 'to receiver \''+receiver.name+'\'', receiver);
+            receiver.receive(signal);
         }
     };
     
@@ -115,9 +116,10 @@ fatcontroller = {};
                 var bindings = signals[signal.name];
                 // Pass the signal into each of the bound functions
                 for(var binding in bindings) {
+                    binding = bindings[binding];
                     if (fatcontroller.debug)
-                        console.log('Receiver \''+this.name+'\' passing', signal, 'to', bindings[binding]);
-                    bindings[binding](signal);
+                        console.log('Receiver \''+this.name+'\' passing', signal, 'to', binding);
+                    binding(signal);
                 }
             }
         }
