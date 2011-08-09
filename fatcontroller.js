@@ -1,7 +1,7 @@
 /*
     ////////////////////////////////////////////////////////////////
-    Tramp
-    https://github.com/mfinger/tramp
+    Fat Controller - Javascript Signalling System
+    https://github.com/mfinger/fatcontroller
     mark.finger@gmail.com
     ////////////////////////////////////////////////////////////////
 
@@ -31,7 +31,6 @@
     For more information, please refer to <http://unlicense.org/>
 */
 
-// Signalling System
 fatcontroller = {};
 
 (function() {
