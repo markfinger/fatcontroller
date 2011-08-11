@@ -33,7 +33,7 @@ Fat Controller - Javascript Signal Transmission and Receipt
     //
     //     signal.name: the signal's name.
     //     signal.data: the attached object.
-    //     signal.timestamp: a unix-time form denoting the point at which the signal was transmitted.
+    //     signal.timestamp: a unix-form timestamp denoting the point at which the signal was transmitted.
     //
     
     // You can register as many receivers as you like, each of which can listen
