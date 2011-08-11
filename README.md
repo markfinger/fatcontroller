@@ -1,4 +1,5 @@
-# Fat Controller - Javascript Signal Transmission and Receipt
+Fat Controller - Javascript Signal Transmission and Receipt
+================================
 
 ```javascript
     // Using Fat Controller allows you to ensure communication between modules 
@@ -11,8 +12,11 @@
     fatcontroller.register(myReceiver);
     
     // Set the receiver to listen for a specific signal and bind a response to it
-    myReceiver.listen('System event', function(data) {
-        // process data
+    myReceiver.listen('System event', function(signal) {
+        // Logs 'System event'
+        console.log(signal.name);
+        // Send myData into a handler function
+        processMyData(signal.data);
     };
     
     // Send a signal, which will be received by all registered receivers
@@ -21,5 +25,5 @@
     // myReceiver receives the signal and passes myData into the function
     
     // You can register as many receivers as you like, each of which can listen
-    // for as many signals as you like.
+    // for as many signals as you like, each possessing a unique response to the signal.
 ```
