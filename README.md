@@ -1,7 +1,6 @@
-# Fat Controller
-### Javascript Signal Transmission and Receipt
+# Fat Controller - Javascript Signal Transmission and Receipt
 
-{{{
+```javascript
     // Using Fat Controller allows you to ensure communication between modules 
     // that are other ignorant of anything outside of the DOM.
 
@@ -23,5 +22,4 @@
     
     // You can register as many receivers as you like, each of which can listen
     // for as many signals as you like.
-
-}}}
+```
