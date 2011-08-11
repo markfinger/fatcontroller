@@ -49,7 +49,7 @@ fatcontroller = {};
         fatcontroller.receivers.push(receiver);
     };
     
-    fatcontroller.transmit = function (name, data) {
+    fatcontroller.transmit = function(name, data) {
         // Transmit the arguments out in fatcontroller.signal form.
         
         var signal = new fatcontroller.signal(name, data ? data : undefined);
@@ -63,7 +63,6 @@ fatcontroller = {};
         }
     };
     
-    
     //----------------Fat Controller's models---------------------
     
     fatcontroller.signal = function Signal(name, data) {
@@ -75,17 +74,15 @@ fatcontroller = {};
         if (data)
             this.data = data;
         // Set a timestamp
-        this.time = new Date;
+        this.timestamp = (new Date).getTime();
     };
     
     fatcontroller.receiver = function Receiver(name) {
         // Receivers map transmitted signals to bound functions.
         
-        // name is used for identifying receivers in debug logging
-        if (name)
-            this.name = name;
-        else
-            this.name = 'Unidentified Receiver';
+        // Receiver's names are used to identify receivers when logging
+        // Fat Controller's debug messages.
+        this.name = name ? name : 'Unidentified Receiver';
             
         // Format: { 'signal name' : [function() {}, ...], ... }
         this.signals = {};
