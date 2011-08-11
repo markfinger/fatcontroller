@@ -3,7 +3,7 @@ Fat Controller - Javascript Signal Transmission and Receipt
 
 ```javascript
     // Using Fat Controller allows you to ensure communication between modules 
-    // that are other ignorant of anything outside of the DOM.
+    // that are otherwise ignorant of anything outside of their scope or the DOM.
 
     // Create a receiver
     myReceiver = new fatcontroller.receiver('My Receiver');
