@@ -1,66 +1,30 @@
 /*
     ////////////////////////////////////////////////////////////////
     Fat Controller - Signal Transmission and Receipt
-    https://github.com/mfinger/fatcontroller
-    mark.finger@gmail.com
+    https://github.com/markfinger/fatcontroller
     ////////////////////////////////////////////////////////////////
-
-    This is free and unencumbered software released into the public domain.
-
-    Anyone is free to copy, modify, publish, use, compile, sell, or
-    distribute this software, either in source code form or as a compiled
-    binary, for any purpose, commercial or non-commercial, and by any
-    means.
-
-    In jurisdictions that recognize copyright laws, the author or authors
-    of this software dedicate any and all copyright interest in the
-    software to the public domain. We make this dedication for the benefit
-    of the public at large and to the detriment of our heirs and
-    successors. We intend this dedication to be an overt act of
-    relinquishment in perpetuity of all present and future rights to this
-    software under copyright law.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-    EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-    MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-    IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
-    OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
-    ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-    OTHER DEALINGS IN THE SOFTWARE.
-
-    For more information, please refer to <http://unlicense.org/>
 */
 
-fatcontroller = {};
+fatcontroller = window.fatcontroller || {};
 
 (function() {
-    
-    // Debug switch, reports all events to the console. 
-    // Defaults to true if the console exists
-    fatcontroller.debug = window.console ? true : false;
-    
+
     // Registry of receivers
     fatcontroller.receivers = [];
     
-    fatcontroller.register = function(receiver) {
+    fatcontroller._register = function(receiver) {
         // Register a new reciever
-        if (fatcontroller.debug)
-            console.log('Fat Controller registering new receiver \''+receiver.name+'\':', receiver);
-        fatcontroller.receivers.push(receiver);
+        this.receivers.push(receiver);
     };
     
     fatcontroller.transmit = function(name, data) {
         // Transmit the arguments out in fatcontroller.signal form.
-        
-        var signal = new fatcontroller.signal(name, data ? data : undefined);
+
+        var signal = new this.signal(name, data),
+			receivers = this.receivers;
         // Transmit to all receivers
-        var receivers = fatcontroller.receivers;
-        for (var receiver in receivers) {
-            receiver = receivers[receiver];
-            if (fatcontroller.debug)
-                console.log('Fat Controller transmitting \''+signal.name+'\':', signal, 'to receiver \''+receiver.name+'\'', receiver);
-            receiver.receive(signal);
-        }
+        for (var i in receivers)
+            receivers[i].receive(signal);
     };
     
     //----------------Fat Controller's models---------------------
@@ -77,22 +41,19 @@ fatcontroller = {};
         this.timestamp = (new Date).getTime();
     };
     
-    fatcontroller.receiver = function Receiver(name) {
+    fatcontroller.receiver = function Receiver() {
         // Receivers map transmitted signals to bound functions.
-        
-        // Receiver's names are used to identify receivers when logging
-        // Fat Controller's debug messages.
-        this.name = name ? name : 'Unidentified Receiver';
-            
+
         // Format: { 'signal name' : [function() {}, ...], ... }
         this.signals = {};
+
+		// Register with the fatcontroller's receivers
+		fatcontroller._register(this);
         
         this.listen = function(signal, binding) {
             // Listen for signals with a name matching :signal and bind
             // :binding as a response.
-            
-            if (fatcontroller.debug)
-                console.log('Receiver \''+this.name+'\' listening for \''+signal+'\' signal, with binding:', binding);
+
             var signals = this.signals;
             // If the signal is already being listened for, add the binding,
             // otherwise add the signal with the binding.
@@ -100,26 +61,19 @@ fatcontroller = {};
                 signals[signal].push(binding);
             else
                 signals[signal] = [binding];
-        }
+        };
         
         this.receive = function(signal) {
             // Passes :signal to any functions bound to :signal.name.
-            
-            if (fatcontroller.debug)
-                console.log('Receiver \''+this.name+'\' received \''+signal.name+'\': ', signal);
-            var signals = this.signals;
+
+			var signals = this.signals;
             // If listening for this signal
             if (signals[signal.name]) {
                 var bindings = signals[signal.name];
                 // Pass the signal into each of the bound functions
-                for(var binding in bindings) {
-                    binding = bindings[binding];
-                    if (fatcontroller.debug)
-                        console.log('Receiver \''+this.name+'\' passing', signal, 'to', binding);
-                    binding(signal);
-                }
+                for(var i in bindings)
+                    bindings[i](signal);
             }
-        }
+        };
     };
-    
 })();
