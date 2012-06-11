@@ -2,22 +2,12 @@
 // http://github.com/markfinger/fatcontroller/
 
 
-/*
-
-ignore a signal
-	unbind a signal and associated callbacks
- */
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //                                 signalName                                 //
 ////////////////////////////////////////////////////////////////////////////////
 
 
-module('signalName testing for listening and signalling', {
-	setup: function() { fc.registry = {}; },
-	teardown: function() { fc.registry = {}; }
-});
+module('signalName testing for listening and signalling');
 
 test('can receive a variety of different signalName arguments each of which are mapped correctly', 3, function() {
 	var callback = function() {
@@ -65,10 +55,7 @@ test('Signal passed to callback has the correct signalName despite identifier', 
 ////////////////////////////////////////////////////////////////////////////////
 
 
-module('fc.listen behaviour tests', {
-	setup: function() { fc.registry = {}; },
-	teardown: function() { fc.registry = {}; }
-});
+module('fc.listen behaviour tests');
 
 test('returns a listener object with the correct members', 4, function() {
 	var signalName = 'some_namespace1:some_event1',
@@ -105,10 +92,7 @@ test('can listen for a signal which executes the callback', 1, function() {
 ////////////////////////////////////////////////////////////////////////////////
 
 
-module('fc.signal behaviour tests', {
-	setup: function() { fc.registry = {}; },
-	teardown: function() { fc.registry = {}; }
-});
+module('fc.signal behaviour tests');
 
 test('fc.signal throws an error if no listeners for signalName', 1, function() {
 	raises(function() {
@@ -172,4 +156,63 @@ test('callback has access to signal object', 1, function() {
 
 	fc.listen(signalName, callback);
 	fc.signal(signalName, data);
+});
+
+////////////////////////////////////////////////////////////////////////////////
+//                                 fc.ignore                                  //
+////////////////////////////////////////////////////////////////////////////////
+
+
+module('fc.ignore behaviour tests', {
+	setup: function() {
+		this.callback = function() { ok(true, 'This should be called') };
+	}
+});
+
+test('fc.ignore succesfully removes all listeners', 5, function() {
+	fc.listen('ignore_test', this.callback);
+	fc.listen('ignore_test', this.callback);
+	ok(fc.registry()['ignore_test'].length == 2);
+	fc.signal('ignore_test');
+	fc.ignore('ignore_test');
+	ok(fc.registry()['ignore_test'] === undefined);
+	raises(function() {
+		fc.signal('ignore_test');
+	});
+});
+
+test('fc.ignore succesfully removes all listeners with identifiers', 4, function() {
+	fc.listen('testo_namespace:testo_event:testo_identifier', this.callback);
+	fc.listen('testo_namespace:testo_event:another_testo_identifier', this.callback);
+	ok(fc.registry()['testo_namespace:testo_event'].length == 2);
+	fc.signal('testo_namespace:testo_event');
+	fc.ignore('testo_namespace:testo_event');
+	ok(fc.registry()['testo_namespace:testo_event'] === undefined);
+});
+
+test('fc.ignore succesfully removes only listeners with matching identifiers, if an identifier is provided', 5, function() {
+	fc.listen('testoo_namespace:testoo_event', this.callback);
+	fc.listen('testoo_namespace:testoo_event', this.callback);
+	fc.listen('testoo_namespace:testoo_event:testoo_identifier', this.callback);
+	fc.listen('testoo_namespace:testoo_event:testoo_identifier', this.callback);
+	fc.listen('testoo_namespace:testoo_event:another_testoo_identifier', this.callback);
+	ok(fc.registry()['testoo_namespace:testoo_event'].length == 5);
+	fc.ignore('testoo_namespace:testoo_event:testoo_identifier');
+	fc.signal('testoo_namespace:testoo_event');
+	ok(fc.registry()['testoo_namespace:testoo_event'].length == 3);
+});
+
+////////////////////////////////////////////////////////////////////////////////
+//                                 fc.registry                                //
+////////////////////////////////////////////////////////////////////////////////
+
+
+module('fc.registry behaviour tests');
+
+test('fc.registry succesfully returns all listeners', 2, function() {
+	fc.listen('registry_test', function() {});
+	fc.listen('registry_test', function() {});
+	fc.listen('other_registry_test', function() {});
+	ok(fc.registry()['registry_test'].length == 2);
+	ok(fc.registry()['other_registry_test'].length == 1);
 });

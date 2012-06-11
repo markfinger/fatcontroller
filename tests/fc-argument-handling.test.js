@@ -8,8 +8,7 @@
 
 
 module('signalName argument handling', {
-	setup: function() { this.callback = function() {}; },
-	teardown: function() { fc.registry = {}; }
+	setup: function() { this.callback = function() {}; }
 });
 
 test('signalName is empty string', function() {
@@ -45,9 +44,7 @@ test('Correctly formatted signalName arguments accepted', 3, function() {
 ////////////////////////////////////////////////////////////////////////////////
 
 
-module('fc.listen argument handling', {
-	teardown: function() { fc.registry = {}; }
-});
+module('fc.listen argument handling');
 
 test('Missing signalName and callback', function() {
 	raises(function() {
@@ -79,9 +76,7 @@ test('Suitable signalName, callback and context arguments accepted', function() 
 //                                 fc.signal                                  //
 ////////////////////////////////////////////////////////////////////////////////
 
-module('fc.signal argument handling', {
-	teardown: function() { fc.registry = {}; }
-});
+module('fc.signal argument handling');
 
 test('Missing signalName', function() {
 	raises(function() {
@@ -107,4 +102,33 @@ test('data is not an object', function() {
 
 test('Correct signalName and data arguments accepted', function() {
 	ok(fc.signal('test', {}));
+});
+
+////////////////////////////////////////////////////////////////////////////////
+//                                 fc.ignore                                  //
+////////////////////////////////////////////////////////////////////////////////
+
+module('fc.ignore argument handling');
+
+test('Missing signalName', function() {
+	raises(function() {
+		fc.ignore();
+	});
+});
+
+test('signalName is empty string', function() {
+	raises(function() {
+		fc.ignore('');
+	});
+});
+
+test('No listeners for signal', function() {
+	raises(function() {
+		fc.ignore('no_listeners_for_this');
+	});
+});
+
+test('Correct signalName argument accepted', function() {
+	fc.listen('test', function() {});
+	ok(fc.ignore('test'));
 });

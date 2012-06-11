@@ -6,7 +6,7 @@ window.fc = (function() {
 	///////////////// Public API ////////////////
 
 	// Publicly accessible register of signals, callbacks and contexts
-	var registry = {};
+	var _registry = {};
 
 	function listen(signalName, callback, context) {
 		// TODO: expand on this with examples
@@ -29,31 +29,48 @@ window.fc = (function() {
 		var signal = {
 			signalName: _checkSignalName(signalName),
 			timestamp: _getTimestamp(),
-			identifier: _getIdentifier(signalName)
+			identifier: _getIdentifier(signalName),
+			data: _checkData(data)
 		};
-
-		if (data)
-			signal.data = _checkData(data);
 
 		return _transmit(signal);
 	}
 
 	function ignore(signalName) {
 		// TODO: expand on this with examples
+		// Remove all listeners with signalNames corresponding to :signalName.
 
-		// stop listening for :signalName
-		// deletes all listeners with a signalName matching :signalName
+		var identifier = _getIdentifier(signalName);
+		signalName = _checkSignalName(signalName);
+
+		if(!_registry[signalName])
+			throw new Error(
+				'fc.ignore: no listeners currently listening for "' +
+				signalName + '"'
+			);
+
+		// Filter out listeners with matching identifiers
+		if(identifier)
+			_registry[signalName] = _registry[signalName].filter(
+				function(listener) {
+					return listener.identifier != this;
+				},
+				identifier
+			);
+
+		// If no identifier was provided, or there are no listeners left
+		if (!identifier || !_registry[signalName].length)
+			delete _registry[signalName];
+
+		return signalName;
 	}
 
-	function receive(signalName, data) {
-		// TODO: expand on this with examples
-
-		// signal :signalName
-		// deletes all listeners with a signalName matching :signalName
+	function registry() {
+		return _registry;
 	}
 
 	// Present a simple API by only returning public methods, underscores should
-	// be prepended to any private methods
+	// be prepended to any private methods/members
 	return {
 		registry: registry,
 		listen: listen,
@@ -65,10 +82,10 @@ window.fc = (function() {
 
 	function _registerListener(listener) {
 
-		var listenerList = registry[listener.signalName];
+		var listenerList = _registry[listener.signalName];
 
 		if (!listenerList)
-			listenerList = registry[listener.signalName] = [];
+			listenerList = _registry[listener.signalName] = [];
 
 		listenerList.push(listener);
 
@@ -76,7 +93,7 @@ window.fc = (function() {
 	}
 
 	function _transmit(signal) {
-		var listenerList = registry[signal.signalName];
+		var listenerList = _registry[signal.signalName];
 
 		if (!listenerList)
 			throw new Error(
@@ -95,6 +112,8 @@ window.fc = (function() {
 	///////////////// Argument handling ////////////////
 
 	function _checkSignalName(signalName) {
+		// Performs validation on :signalName and removes any identifier
+
 		// Ensuring signalName is of type string
 		if (typeof signalName != 'string')
 			throw new Error('fc.signal: `signalName` must be a string.');
