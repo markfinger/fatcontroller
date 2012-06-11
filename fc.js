@@ -3,13 +3,24 @@
 
 window.fc = (function() {
 
-	///////////////// Public API ////////////////
-
-	// Publicly accessible register of signals, callbacks and contexts
 	var _registry = {};
 
+	///////////////// Public API ////////////////
+
+	// TODO: move basic examples out of functions into here, leave complicated examples for the docs
+
 	function listen(signalName, callback, context) {
-		// TODO: expand on this with examples
+		// Listen for :signalName, when it occurs :callback will be executed.
+		//
+		// :context is an optional argument which will override :callback's
+		// `this` property.
+		//
+		// Basic example:
+		// ```
+		// 	fc.listen('object_saved', function() {
+		// 		console.log('an object has been saved');
+		// 	});
+		// ```
 
 		var listener = {
 			signalName: _checkSignalName(signalName),
@@ -22,7 +33,6 @@ window.fc = (function() {
 	}
 
 	function signal(signalName, data) {
-		// TODO: expand on this with examples
 		// Execute every callback listening for :signalName.
 		// :data is an optional object which is passed to every callback
 
@@ -37,7 +47,6 @@ window.fc = (function() {
 	}
 
 	function ignore(signalName) {
-		// TODO: expand on this with examples
 		// Remove all listeners with signalNames corresponding to :signalName.
 
 		var identifier = _getIdentifier(signalName);
@@ -66,17 +75,9 @@ window.fc = (function() {
 	}
 
 	function registry() {
+		// Returns the internal registry of signals and listeners
 		return _registry;
 	}
-
-	// Present a simple API by only returning public methods, underscores should
-	// be prepended to any private methods/members
-	return {
-		registry: registry,
-		listen: listen,
-		signal: signal,
-		ignore: ignore
-	};
 
 	////////// Helper functions for the public API //////////
 
@@ -113,6 +114,11 @@ window.fc = (function() {
 
 	function _checkSignalName(signalName) {
 		// Performs validation on :signalName and removes any identifier
+		//
+		// Best practice for signalName's is 'namespace:event:identifier',
+		// although any alphanumeric string will suffice. The advantage of using
+		// the namespace and event is that it allows for an identifier field
+		// for uniquely identifying listeners.
 
 		// Ensuring signalName is of type string
 		if (typeof signalName != 'string')
@@ -150,10 +156,10 @@ window.fc = (function() {
 		return data;
 	}
 
-
 	///////////////// Utility functions ////////////////
 
 	function _undefinedOrObject(obj) {
+		// Returns true if :obj is either undefined or an object
 		if (obj === undefined)
 			return true;
 		else
@@ -166,6 +172,7 @@ window.fc = (function() {
 	}
 
 	function _splitSignalName(signalName) {
+		// Returns :signalName split by the colon character
 		return signalName.split(':');
 	}
 
@@ -181,8 +188,18 @@ window.fc = (function() {
 	function _getIdentifier(signalName) {
 		// Remove the identifier from the signalName
 		var signalTokens = _splitSignalName(signalName);
-		if (signalTokens.length == 3)
-			return signalTokens[2];
+		return signalTokens.length == 3 ? signalTokens[2] : undefined;
 	}
 
+	///////////////// Public API instantiation ////////////////
+
+	// Present a simple API by only returning public methods.
+	// Stylistically, underscores should be prepended to any private
+	// methods or members
+	return {
+		registry: registry,
+		listen: listen,
+		signal: signal,
+		ignore: ignore
+	};
 })();
