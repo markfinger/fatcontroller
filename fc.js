@@ -52,14 +52,14 @@ window.fc = (function() {
 		var identifier = _getIdentifier(signalName);
 		signalName = _checkSignalName(signalName);
 
-		if(!_registry[signalName])
+		if (!_registry[signalName])
 			throw new Error(
 				'fc.ignore: no listeners currently listening for "' +
 				signalName + '"'
 			);
 
 		// Filter out listeners with matching identifiers
-		if(identifier)
+		if (identifier)
 			_registry[signalName] = _registry[signalName].filter(
 				function(listener) {
 					return listener.identifier != this;
@@ -82,6 +82,7 @@ window.fc = (function() {
 	////////// Helper functions for the public API //////////
 
 	function _registerListener(listener) {
+		// Todo: internal docs
 
 		var listenerList = _registry[listener.signalName];
 
@@ -94,6 +95,8 @@ window.fc = (function() {
 	}
 
 	function _transmit(signal) {
+		// Todo: internal docs
+
 		var listenerList = _registry[signal.signalName];
 
 		if (!listenerList)
@@ -101,6 +104,7 @@ window.fc = (function() {
 				'fc.signal: no listeners for "' + signal.signalName + '"'
 			);
 
+		// TODO: replace this with an Array.map call
 		for (var i=0; i<listenerList.length; i++) {
 			var listener = listenerList[i];
 			// Assign listener.context as callback's `this`
@@ -123,6 +127,7 @@ window.fc = (function() {
 		// Ensuring signalName is of type string
 		if (typeof signalName != 'string')
 			throw new Error('fc.signal: `signalName` must be a string.');
+
 		// Case-insensitive search for alphanumeric characters, underscores,
 		// dashes and colons
 		if (signalName.search(/^[a-z0-9_/:/-]+$/i) == -1)
@@ -131,28 +136,34 @@ window.fc = (function() {
 				'least one character, and composed only of alphanumeric ' +
 				'characters, underscores, dashes and colons.'
 			);
+
 		// Ensure there are at most 3 colons in :signalName
 		if (_splitSignalName(signalName).length > 3)
 			throw new Error(
 				'fc.signal: `signalName` may contain at most three colons, ' +
 				'example: `namespace:event:identifier`.'
 			);
+
 		return _removeIdentifier(signalName);
 	}
 
 	function _checkCallback(callback) {
 		// Ensure :callback is a function
+
 		if (typeof callback != 'function')
 			throw new Error('fc.listen: `callback` must be a function.');
+
 		return callback;
 	}
 
 	function _checkData(data) {
 		// Ensure :data is either an object or undefined
+
 		if (!_undefinedOrObject(data))
 			throw new Error(
 				'fc.signal: `data` must be either undefined or an object.'
 			);
+
 		return data;
 	}
 
@@ -160,6 +171,7 @@ window.fc = (function() {
 
 	function _undefinedOrObject(obj) {
 		// Returns true if :obj is either undefined or an object
+
 		if (obj === undefined)
 			return true;
 		else
@@ -168,17 +180,20 @@ window.fc = (function() {
 
 	function _getTimestamp() {
 		// Returns a Unix-style time encoding
+
 		return (new Date).getTime();
 	}
 
 	function _splitSignalName(signalName) {
 		// Returns :signalName split by the colon character
+
 		return signalName.split(':');
 	}
 
 	function _removeIdentifier(signalName) {
 		// Remove the identifier from the signalName
 		var signalTokens = _splitSignalName(signalName);
+
 		if (signalTokens.length == 1)
 			return signalName;
 		else
@@ -188,6 +203,7 @@ window.fc = (function() {
 	function _getIdentifier(signalName) {
 		// Remove the identifier from the signalName
 		var signalTokens = _splitSignalName(signalName);
+
 		return signalTokens.length == 3 ? signalTokens[2] : undefined;
 	}
 
