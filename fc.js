@@ -5,30 +5,31 @@ window.fc = (function() {
 
 	///////////////// Public API ////////////////
 
+	// Publicly accessible register of signals, callbacks and contexts
+	var registry = {};
+
 	function listen(signalName, callback, context) {
 		// TODO: expand on this with examples
 
-		// Check the arguments
-		signalName = _checkSignalName(signalName);
-		callback = _checkCallback(callback);
-		context = _checkContext(context);
-
-		// Return an object reflecting the listener's internal representation
-		return _registerListener({
-			signalName: signalName,
-			callback: callback,
+		var listener = {
+			signalName: _checkSignalName(signalName),
+			callback: _checkCallback(callback),
+			identifier: _getIdentifier(signalName),
 			context: context
-		});
+		};
+
+		return _registerListener(listener);
 	}
 
 	function signal(signalName, data) {
 		// TODO: expand on this with examples
 		// Execute every callback listening for :signalName.
-		// :data is an optional object which is passed
+		// :data is an optional object which is passed to every callback
 
 		var signal = {
 			signalName: _checkSignalName(signalName),
-			__timestamp: __getTimestamp()
+			timestamp: _getTimestamp(),
+			identifier: _getIdentifier(signalName)
 		};
 
 		if (data)
@@ -44,9 +45,52 @@ window.fc = (function() {
 		// deletes all listeners with a signalName matching :signalName
 	}
 
-	///////////////// Internal variables ///////////////
+	function receive(signalName, data) {
+		// TODO: expand on this with examples
 
-	var _signalRegistery = {};
+		// signal :signalName
+		// deletes all listeners with a signalName matching :signalName
+	}
+
+	// Present a simple API by only returning public methods, underscores should
+	// be prepended to any private methods
+	return {
+		registry: registry,
+		listen: listen,
+		signal: signal,
+		ignore: ignore
+	};
+
+	////////// Helper functions for the public API //////////
+
+	function _registerListener(listener) {
+
+		var listenerList = registry[listener.signalName];
+
+		if (!listenerList)
+			listenerList = registry[listener.signalName] = [];
+
+		listenerList.push(listener);
+
+		return listener;
+	}
+
+	function _transmit(signal) {
+		var listenerList = registry[signal.signalName];
+
+		if (!listenerList)
+			throw new Error(
+				'fc.signal: no listeners for "' + signal.signalName + '"'
+			);
+
+		for (var i=0; i<listenerList.length; i++) {
+			var listener = listenerList[i];
+			// Assign listener.context as callback's `this`
+			listener.callback.call(listener.context, signal);
+		}
+
+		return signal;
+	}
 
 	///////////////// Argument handling ////////////////
 
@@ -63,12 +107,12 @@ window.fc = (function() {
 				'characters, underscores, dashes and colons.'
 			);
 		// Ensure there are at most 3 colons in :signalName
-		if (__splitSignalName(signalName).length > 3)
+		if (_splitSignalName(signalName).length > 3)
 			throw new Error(
 				'fc.signal: `signalName` may contain at most three colons, ' +
 				'example: `namespace:event:identifier`.'
 			);
-		return signalName;
+		return _removeIdentifier(signalName);
 	}
 
 	function _checkCallback(callback) {
@@ -78,18 +122,9 @@ window.fc = (function() {
 		return callback;
 	}
 
-	function _checkContext(context) {
-		// Ensure :context is either an object or undefined
-		if (!__undefinedOrObject(context))
-			throw new Error(
-				'fc.listen: `obj` must be either undefined or an object.'
-			);
-		return context;
-	}
-
 	function _checkData(data) {
 		// Ensure :data is either an object or undefined
-		if (!__undefinedOrObject(data))
+		if (!_undefinedOrObject(data))
 			throw new Error(
 				'fc.signal: `data` must be either undefined or an object.'
 			);
@@ -99,40 +134,36 @@ window.fc = (function() {
 
 	///////////////// Utility functions ////////////////
 
-	function __undefinedOrObject(obj) {
+	function _undefinedOrObject(obj) {
 		if (obj === undefined)
 			return true;
 		else
 			return typeof obj == 'object';
 	}
 
-	function __getTimestamp() {
+	function _getTimestamp() {
 		// Returns a Unix-style time encoding
 		return (new Date).getTime();
 	}
 
-	function __splitSignalName(signalName) {
+	function _splitSignalName(signalName) {
 		return signalName.split(':');
 	}
 
-	////////// Helper functions for the public API //////////
-
-	function _registerListener(listener) {
-
-		var signalNames = __splitSignalName(listener.signalName);
-
-		return listener;
+	function _removeIdentifier(signalName) {
+		// Remove the identifier from the signalName
+		var signalTokens = _splitSignalName(signalName);
+		if (signalTokens.length == 1)
+			return signalName;
+		else
+			return signalTokens[0] + ':' + signalTokens[1];
 	}
 
-	function _transmit(signal) {
-		return signal;
+	function _getIdentifier(signalName) {
+		// Remove the identifier from the signalName
+		var signalTokens = _splitSignalName(signalName);
+		if (signalTokens.length == 3)
+			return signalTokens[2];
 	}
 
-	// Keep a simple API by only returning public methods, underscores should
-	// be prepended to any private methods
-	return {
-		listen: listen,
-		signal: signal,
-		ignore: ignore
-	};
 })();

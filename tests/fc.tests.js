@@ -1,119 +1,175 @@
-/*
-Unit tests for fc.js
+// Unit tests for fc.js
+// http://github.com/markfinger/fatcontroller/
 
-http://github.com/markfinger/fatcontroller/
-*/
 
 /*
 
-listen for an event, provide callback with data + signal
-	can listen for an event, callback executes
-	can receive a signal, containing data
-	can provide extra data for the callback
-
-signal an event, providing data for the signal
-	signal has signalName
-	signal can take optional data in dict form
-	signalling argument can be a string or a string + dict
-
-unbind a signal and callback
-	'event'
-	'namespace:event'
-	'namespace:event:identifier'
+ignore a signal
+	unbind a signal and associated callbacks
  */
 
 
-module('signalName argument handling');
+////////////////////////////////////////////////////////////////////////////////
+//                                 signalName                                 //
+////////////////////////////////////////////////////////////////////////////////
 
-test('signalName is empty string', function() {
+
+module('signalName testing for listening and signalling', {
+	setup: function() { fc.registry = {}; },
+	teardown: function() { fc.registry = {}; }
+});
+
+test('can receive a variety of different signalName arguments each of which are mapped correctly', 3, function() {
+	var callback = function() {
+		ok(true, 'this should execute');
+	};
+
+	fc.listen('event1', callback);
+	fc.signal('event1');
+
+	fc.listen('namespace2:event2', callback);
+	fc.signal('namespace2:event2');
+
+	fc.listen('namespace3:event3:identification3', callback);
+	fc.signal('namespace3:event3:identification3');
+});
+
+test('Ignores the identifer when broadcasting signals', 3, function() {
+	var callback = function() {
+		ok(true, 'this should execute');
+	};
+
+	fc.listen('namespace:event', callback);
+	fc.listen('namespace:event:identifier1', callback);
+	fc.listen('namespace:event:identifier2', callback);
+	fc.signal('namespace:event');
+});
+
+test('Signal passed to callback has the correct signalName despite identifier', 2, function() {
+	var signalName1 = 'testsignalName:testsignalName',
+		callback1 = function(signal) {
+			equal('testsignalName:testsignalName', signal.signalName, 'signal.signalName is correct');
+		},
+		signalName2 = 'testsignalName:testsignalName:testsignalName',
+		callback2 = function(signal) {
+			equal('testsignalName:testsignalName', signal.signalName, 'signal.signalName is correct');
+		};
+	fc.listen(signalName1, callback1);
+	fc.listen(signalName2, callback2);
+	fc.signal(signalName1); // signalName2's identifier should be ignored and callback2 will run
+});
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                 fc.listen                                  //
+////////////////////////////////////////////////////////////////////////////////
+
+
+module('fc.listen behaviour tests', {
+	setup: function() { fc.registry = {}; },
+	teardown: function() { fc.registry = {}; }
+});
+
+test('returns a listener object with the correct members', 4, function() {
+	var signalName = 'some_namespace1:some_event1',
+		callback = function() { return signalName; },
+		context = { this: this },
+		listener = fc.listen(signalName, callback, context);
+
+	equal(signalName, listener.signalName, 'listener.signalName is correct');
+	equal(callback, listener.callback, 'listener.callback is correct');
+	equal(signalName, listener.callback(), 'listener.callback returns the correct value');
+	deepEqual(context, listener.context, 'listener.context is correct');
+});
+
+test('handles signalName identifiers correctly', 2, function() {
+	var signalName = 'some_namespace1:some_event1:some_identifier1',
+		callback = function() {},
+		listener = fc.listen(signalName, callback);
+
+	equal('some_namespace1:some_event1', listener.signalName, 'listener.signalName is correct');
+	equal('some_identifier1', listener.identifier, 'listener.identifier is correct');
+});
+
+test('can listen for a signal which executes the callback', 1, function() {
+	var signalName = 'some_namespace2:some_event2:some_identifier2',
+		callback = function() { ok(true, 'this should execute'); };
+
+	fc.listen(signalName, callback);
+	fc.signal(signalName);
+});
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                                 fc.signal                                  //
+////////////////////////////////////////////////////////////////////////////////
+
+
+module('fc.signal behaviour tests', {
+	setup: function() { fc.registry = {}; },
+	teardown: function() { fc.registry = {}; }
+});
+
+test('fc.signal throws an error if no listeners for signalName', 1, function() {
 	raises(function() {
-		fc.signal('');
+		fc.signal('nothing_is_listening_for_this')
 	});
 });
 
-test('signalName contains bad characters', function() {
-	raises(function() {
-		fc.signal('test^test;test/test#test');
+test('fc.signal takes and passed data to callbacks', 1, function() {
+	fc.listen('test_event', function(signal) {
+		ok(signal.data.apple == 'green')
 	});
+	fc.signal('test_event', { apple: 'green' })
 });
 
-test('signalName contains too many colons', 2, function() {
-	raises(function() {
-		fc.signal('test:test:test:test');
-	});
-	raises(function() {
-		fc.signal('test:test:test:test:test');
-	});
+test('can receive a variety of different context arguments each of which becomes `this` for the callback', 5, function() {
+	var callback1 = function() { // object
+			this.contextFunction();
+		},
+		context1 = {
+			contextFunction: function() { ok(true, 'this should execute'); }
+		},
+		callback2 = function() { // object
+			equal(true, this.test);
+		},
+		context2 = new function() {
+			this.test = true;
+		},
+		callback3 = function() { // number
+			equal(3, this);
+		},
+		context3 = 3,
+		callback4 = function() { // boolean
+			equal(true, this);
+		},
+		context4 = true,
+		callback5 = function() { // string
+			equal('test', this);
+		},
+		context5 = 'test';
+
+	fc.listen('test1', callback1, context1);
+	fc.listen('test2', callback2, context2);
+	fc.listen('test3', callback3, context3);
+	fc.listen('test4', callback4, context4);
+	fc.listen('test5', callback5, context5);
+	fc.signal('test1');
+	fc.signal('test2');
+	fc.signal('test3');
+	fc.signal('test4');
+	fc.signal('test5');
 });
 
-test('Correctly formatted signalName arguments accepted', 3, function() {
-	ok(fc.signal('event'));
-	ok(fc.signal('namespace:event'));
-	ok(fc.signal('namespace:event:identifier'));
-});
+test('callback has access to signal object', 1, function() {
+	var signalName = 'some_namespace4:some_event4:some_identifier4',
+		callback = function(signal) {
+			signal.data.testFunction();
+		},
+		data = {
+			testFunction: function() { ok(true, 'this should execute'); }
+		};
 
-
-
-module('fc.listen argument handling');
-
-test('Missing signalName and callback', function() {
-	raises(function() {
-		fc.listen();
-	});
-});
-
-test('Missing callback', function() {
-	raises(function() {
-		fc.listen('test');
-	});
-});
-
-test('callback is not a function', function() {
-	raises(function() {
-		fc.listen('test', 1);
-	});
-});
-
-test('Suitable signalName and callback arguments accepted', function() {
-	ok(fc.listen('test', function(){}));
-});
-
-test('Unsuitable context argument provided', function() {
-	raises(function() {
-		fc.listen('test', function(){}, 1)
-	});
-});
-
-test('Suitable signalName, callback and context arguments accepted', function() {
-	ok(fc.listen('test', function(){}), {});
-});
-
-
-
-module('fc.signal argument handling');
-
-test('Missing signalName', function() {
-	raises(function() {
-		fc.signal();
-	});
-});
-
-test('signalName is empty string', function() {
-	raises(function() {
-		fc.signal('');
-	});
-});
-
-test('Correct signalName argument accepted', function() {
-	ok(fc.signal('test'));
-});
-
-test('data is not an object', function() {
-	raises(function() {
-		fc.signal('testing', 1);
-	});
-});
-
-test('Correct signalName and data arguments accepted', function() {
-	ok(fc.signal('test', {}));
+	fc.listen(signalName, callback);
+	fc.signal(signalName, data);
 });
