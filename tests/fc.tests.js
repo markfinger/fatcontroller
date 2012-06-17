@@ -94,12 +94,6 @@ test('can listen for a signal which executes the callback', 1, function() {
 
 module('fc.signal behaviour tests');
 
-test('fc.signal throws an error if no listeners for signalName', 1, function() {
-	raises(function() {
-		fc.signal('nothing_is_listening_for_this')
-	});
-});
-
 test('fc.signal takes and passed data to callbacks', 1, function() {
 	fc.listen('test_event', function(signal) {
 		ok(signal.data.apple == 'green')

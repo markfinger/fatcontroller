@@ -122,12 +122,6 @@ test('signalName is empty string', function() {
 	});
 });
 
-test('No listeners for signal', function() {
-	raises(function() {
-		fc.ignore('no_listeners_for_this');
-	});
-});
-
 test('Correct signalName argument accepted', function() {
 	fc.listen('test', function() {});
 	ok(fc.ignore('test'));
