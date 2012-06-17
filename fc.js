@@ -1,163 +1,155 @@
-// Fat Controller - a messaging/signalling service in JS
+// Fat Controller - a publish-subscribe service in JS
 // https://github.com/markfinger/fatcontroller
 //
 //
-// API Outline (See README.md for more information and examples)
+// API Outline (See the README for more information and examples)
 //
-// 	fc.signal(signalName[, data])
-// 		Signal all listeners that :signalName has occurred.
+// 	fc.publish(message[, data])
+// 		Publish :message to all subscribers.
 //
-// 	fc.listen(signalName, callback[, context])
-// 		Listen for :signalName, calling :callback when the signal is received.
+// 	fc.subscribe(message, callback[, thisArg])
+// 		Listen for :message, calling :callback when the signal is received.
 //
-// 	fc.ignore(signalName)
-// 		Remove any listener listening for :signalName.
+// 	fc.unsubscribe(message)
+// 		Remove any subscriber listening for :message.
 //
 // 	fc.registry()
-// 		Returns an associative array containing all listeners.
+// 		Returns an associative array containing all subscribers.
 //
 
 // ES5 polyfills
-Array.prototype.forEach||(Array.prototype.forEach=function(a,b){var c,d;if(this==null)throw new TypeError("this is null or not defined");var e=Object(this),f=e.length>>>0;if({}.toString.call(a)!="[object Function]")throw new TypeError(a+" is not a function");b&&(c=b),d=0;while(d<f){var g;d in e&&(g=e[d],a.call(c,g,d,e)),d++}})
-Array.prototype.filter||(Array.prototype.filter=function(a){"use strict";if(this==null)throw new TypeError;var b=Object(this),c=b.length>>>0;if(typeof a!="function")throw new TypeError;var d=[],e=arguments[1];for(var f=0;f<c;f++)if(f in b){var g=b[f];a.call(e,g,f,b)&&d.push(g)}return d})
+Array.prototype.forEach||(Array.prototype.forEach=function(e,g){var b,a;if(null==this)throw new TypeError("this is null or not defined");var c=Object(this),d=c.length>>>0;if("[object Function]"!={}.toString.call(e))throw new TypeError(e+" is not a function");g&&(b=g);for(a=0;a<d;){var f;a in c&&(f=c[a],e.call(b,f,a,c));a++}});
+Array.prototype.filter||(Array.prototype.filter=function(e,g){if(null==this)throw new TypeError;var b=Object(this),a=b.length>>>0;if("function"!=typeof e)throw new TypeError;for(var c=[],d=0;d<a;d++)if(d in b){var f=b[d];e.call(g,f,d,b)&&c.push(f)}return c});
 
 window.fc = (function() {
 
-	// Registry of listeners. Accessible from fc.registry
+	// Private registry of subscribers; retrievable with `fc.registry()`
 	var _registry = {};
 
 	///////////////// Public API ////////////////
 
-	function signal(signalName, data) {
-		// Execute every callback listening for :signalName.
-		// :data is an optional object which is passed to every callback
+	function publish(message, data) {
+		// Publish :message to any subscribers listening for it. Each
+		// subscriber's callback will be called, with optional argument :data
+		// passed with the message
 
-		var signal = {
-			signalName: _checkSignalName(signalName),
+		return _publishMessage({
+			name: _checkMessage(message),
 			timestamp: _getTimestamp(),
-			identifier: _getIdentifier(signalName),
+			identifier: _getMessageIdentifier(message),
 			data: _checkData(data)
-		};
-
-		return _transmit(signal);
+		});
 	}
 
-	function listen(signalName, callback, context) {
-		// Listen for :signalName, when it occurs :callback will be executed.
+	function subscribe(message, callback, thisArg) {
+		// Listen for :message, when it occurs :callback will be executed.
 		//
-		// :context is an optional argument which will override :callback's
-		// `this` property.
-		//
-		// Basic example:
-		// ```
-		// 	fc.listen('object_saved', function() {
-		// 		console.log('an object has been saved');
-		// 	});
-		// ```
+		// :thisArg is an optional argument which will override :callback's
+		// `this` property
 
-		var listener = {
-			signalName: _checkSignalName(signalName),
+		return _registerSubscriber({
+			messageName: _checkMessage(message),
 			callback: _checkCallback(callback),
-			identifier: _getIdentifier(signalName),
-			context: context
-		};
-
-		return _registerListener(listener);
+			identifier: _getMessageIdentifier(message),
+			thisArg: thisArg
+		});
 	}
 
-	function ignore(signalName) {
-		// Remove all listeners with signalNames corresponding to :signalName.
+	function unsubscribe(message) {
+		// Remove any subscribers with a `name` corresponding to :message.
+		// If :message contains an identifier fragment, only subscribers with
+		// matching identifiers will be removed
 
-		var identifier = _getIdentifier(signalName);
-		signalName = _checkSignalName(signalName);
+		var identifier = _getMessageIdentifier(message);
+		message = _checkMessage(message);
 
-		// Filter out listeners with matching identifiers
+		// Filter out subscriber with matching identifiers
 		if (identifier)
-			_registry[signalName] = _registry[signalName].filter(
-				function(listener) {
-					return listener.identifier != this;
+			_registry[message] = _registry[message].filter(
+				function(subscriber) {
+					return subscriber.identifier != this;
 				},
 				identifier
 			);
 
-		// If no identifier was provided, or there are no listeners left
-		if (!identifier || !_registry[signalName].length)
-			delete _registry[signalName];
+		// If no identifier was provided, or there are no subscribers left
+		if (!identifier || !_registry[message].length)
+			delete _registry[message];
 
-		return signalName;
+		return message;
 	}
 
 	function registry() {
-		// Returns the internal registry of signals and listeners
+		// Returns the internal registry of signals and subscribers
 
 		return _registry;
 	}
 
 	////////// Helper functions for the public API //////////
 
-	function _registerListener(listener) {
-		// Adds :listener to the listener registry
+	function _registerSubscriber(subscriber) {
+		// Adds :subscriber to the subscriber registry
 
-		var listenerList = _registry[listener.signalName];
+		var subscribers = _registry[subscriber.messageName];
 
-		if (!listenerList)
-			listenerList = _registry[listener.signalName] = [];
+		if (!subscribers)
+			subscribers = _registry[subscriber.messageName] = [];
 
-		listenerList.push(listener);
+		subscribers.push(subscriber);
 
-		return listener;
+		return subscriber;
 	}
 
-	function _transmit(signal) {
-		// Passes :signal to each listener listening for :signal.signalName
+	function _publishMessage(message) {
+		// Passes :message to each subscriber listening for :message.name
 
-		var listenerList = _registry[signal.signalName];
+		var subscriberList = _registry[message.name];
 
-		listenerList.forEach(function(listener) {
-			// Assign listener.context as callback's `this`
-			listener.callback.call(listener.context || window, signal)
+		subscriberList.forEach(function(subscriber) {
+			// If subscriber has a contextual `this` value to apply, assign it
+			// as subscriber.callback's `this`
+			if (subscriber.thisArg !== undefined)
+				subscriber.callback.call(subscriber.thisArg, message);
+			else
+				subscriber.callback(message);
 		});
 
-		return signal;
+		return message;
 	}
 
 	///////////////// Argument handling ////////////////
 
-	function _checkSignalName(signalName) {
-		// Performs validation on :signalName and removes any identifier.
-		//
-		// Best practice for signalName's is 'namespace:event#identifier',
-		// although any alphanumeric string will suffice. Using an identifier
-		// allows for ease of removing individual listeners
+	function _checkMessage(message) {
+		// Performs validation on :message and removes any identifier
 
-		// Ensuring signalName is of type string
-		if (typeof signalName != 'string')
-			throw new TypeError('fc.signal: `signalName` must be a string.');
+		// Ensuring message is of type string
+		if (typeof message != 'string')
+			throw new TypeError('fc.publish: `message` must be a string.');
 
 		// Case-insensitive search for alphanumeric characters, underscores,
 		// dashes and colons
-		if (signalName.search(/^[a-z0-9_/:/-]+$/i) == -1)
+		if (message.search(/^[a-z0-9_/:/-]+$/i) == -1)
 			throw new Error(
-				'fc.signal: `signalName` must be a string containing at ' +
+				'fc.publish: `message` must be a string containing at ' +
 				'least one character, and composed only of alphanumeric ' +
 				'characters, underscores, dashes and colons.'
 			);
 
-		// Ensure there are at most 3 colons in :signalName
-		if (_splitSignalName(signalName).length > 3)
+		// Ensure there are at most 3 colons in :message
+		if (_splitMessage(message).length > 3)
 			throw new Error(
-				'fc.signal: `signalName` may contain at most three colons, ' +
+				'fc.publish: `message` may contain at most three colons, ' +
 				'example: `namespace:event:identifier`.'
 			);
 
-		return _removeIdentifier(signalName);
+		return _removeMessageIdentifier(message);
 	}
 
 	function _checkCallback(callback) {
 		// Ensure :callback is a function
 
 		if (typeof callback != 'function')
-			throw new TypeError('fc.listen: `callback` must be a function.');
+			throw new TypeError('fc.subscribe: `callback` must be a function.');
 
 		return callback;
 	}
@@ -167,7 +159,7 @@ window.fc = (function() {
 
 		if (!_undefinedOrObject(data))
 			throw new TypeError(
-				'fc.signal: `data` must be either undefined or an object.'
+				'fc.publish: `data` must be either undefined or an object.'
 			);
 
 		return data;
@@ -190,39 +182,39 @@ window.fc = (function() {
 		return (new Date).getTime();
 	}
 
-	function _splitSignalName(signalName) {
-		// Returns :signalName split by the colon character
+	function _splitMessage(message) {
+		// Returns :message split by the colon character
 
-		return signalName.split(':');
+		return message.split(':');
 	}
 
-	function _removeIdentifier(signalName) {
-		// Remove the identifier from :signalName
+	function _removeMessageIdentifier(message) {
+		// Remove the identifier from :message
 
-		var signalTokens = _splitSignalName(signalName);
+		var messageTokens = _splitMessage(message);
 
-		if (signalTokens.length == 1)
-			return signalName;
+		if (messageTokens.length == 1)
+			return message;
 		else
-			return signalTokens[0] + ':' + signalTokens[1];
+			return messageTokens[0] + ':' + messageTokens[1];
 	}
 
-	function _getIdentifier(signalName) {
-		// Return the identifier from :signalName if possible
+	function _getMessageIdentifier(message) {
+		// If :message has an identifier, return it
 
-		var signalTokens = _splitSignalName(signalName);
+		var messageTokens = _splitMessage(message);
 
-		if (signalTokens.length == 3)
-			return signalTokens[2];
+		if (messageTokens.length == 3)
+			return messageTokens[2];
 	}
 
 	// Present a simple API by only returning public methods.
 	// Stylistically, underscores should be prepended to any private
 	// methods or members
 	return {
-		signal: signal,
-		listen: listen,
-		ignore: ignore,
+		publish: publish,
+		subscribe: subscribe,
+		unsubscribe: unsubscribe,
 		registry: registry
 	};
 })();

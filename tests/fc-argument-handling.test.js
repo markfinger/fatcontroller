@@ -3,126 +3,126 @@
 
 
 ////////////////////////////////////////////////////////////////////////////////
-//                                 signalName                                 //
+//                                 messageName                                 //
 ////////////////////////////////////////////////////////////////////////////////
 
 
-module('signalName argument handling', {
+module('messageName argument handling', {
 	setup: function() { this.callback = function() {}; }
 });
 
-test('signalName is empty string', function() {
+test('messageName is empty string', function() {
 	raises(function() {
-		fc.listen('', this.callback);
+		fc.subscribe('', this.callback);
 	});
 });
 
-test('signalName contains bad characters', function() {
+test('messageName contains bad characters', function() {
 	raises(function() {
-		fc.listen('test^test;test/test#test', this.callback);
+		fc.subscribe('test^test;test/test#test', this.callback);
 	});
 });
 
-test('signalName contains too many colons', 2, function() {
+test('messageName contains too many colons', 2, function() {
 	raises(function() {
-		fc.listen('test:test:test:test', this.callback);
+		fc.subscribe('test:test:test:test', this.callback);
 	});
 	raises(function() {
-		fc.listen('test:test:test:test:test', this.callback);
+		fc.subscribe('test:test:test:test:test', this.callback);
 	});
 });
 
-test('Correctly formatted signalName arguments accepted', 3, function() {
-	ok(fc.listen('event', this.callback));
-	ok(fc.listen('namespace:event', this.callback));
-	ok(fc.listen('namespace:event:identifier', this.callback));
+test('Correctly formatted messageName arguments accepted', 3, function() {
+	ok(fc.subscribe('event', this.callback));
+	ok(fc.subscribe('namespace:event', this.callback));
+	ok(fc.subscribe('namespace:event:identifier', this.callback));
 });
 
 
 ////////////////////////////////////////////////////////////////////////////////
-//                                 fc.listen                                  //
+//                                 fc.subscribe                                  //
 ////////////////////////////////////////////////////////////////////////////////
 
 
-module('fc.listen argument handling');
+module('fc.subscribe argument handling');
 
-test('Missing signalName and callback', function() {
+test('Missing messageName and callback', function() {
 	raises(function() {
-		fc.listen();
+		fc.subscribe();
 	});
 });
 
 test('Missing callback', function() {
 	raises(function() {
-		fc.listen('test');
+		fc.subscribe('test');
 	});
 });
 
 test('callback is not a function', function() {
 	raises(function() {
-		fc.listen('test', 1);
+		fc.subscribe('test', 1);
 	});
 });
 
-test('Suitable signalName and callback arguments accepted', function() {
-	ok(fc.listen('test', function(){}));
+test('Suitable messageName and callback arguments accepted', function() {
+	ok(fc.subscribe('test', function(){}));
 });
 
-test('Suitable signalName, callback and context arguments accepted', function() {
-	ok(fc.listen('test', function(){}), {});
+test('Suitable messageName, callback and context arguments accepted', function() {
+	ok(fc.subscribe('test', function(){}), {});
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-//                                 fc.signal                                  //
+//                                 fc.publish                                  //
 ////////////////////////////////////////////////////////////////////////////////
 
-module('fc.signal argument handling');
+module('fc.publish argument handling');
 
-test('Missing signalName', function() {
+test('Missing messageName', function() {
 	raises(function() {
-		fc.signal();
+		fc.publish();
 	});
 });
 
-test('signalName is empty string', function() {
+test('messageName is empty string', function() {
 	raises(function() {
-		fc.signal('');
+		fc.publish('');
 	});
 });
 
-test('Correct signalName argument accepted', function() {
-	ok(fc.signal('test'));
+test('Correct messageName argument accepted', function() {
+	ok(fc.publish('test'));
 });
 
 test('data is not an object', function() {
 	raises(function() {
-		fc.signal('testing', 1);
+		fc.publish('testing', 1);
 	});
 });
 
-test('Correct signalName and data arguments accepted', function() {
-	ok(fc.signal('test', {}));
+test('Correct messageName and data arguments accepted', function() {
+	ok(fc.publish('test', {}));
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-//                                 fc.ignore                                  //
+//                                 fc.unsubscribe                                  //
 ////////////////////////////////////////////////////////////////////////////////
 
-module('fc.ignore argument handling');
+module('fc.unsubscribe argument handling');
 
-test('Missing signalName', function() {
+test('Missing messageName', function() {
 	raises(function() {
-		fc.ignore();
+		fc.unsubscribe();
 	});
 });
 
-test('signalName is empty string', function() {
+test('messageName is empty string', function() {
 	raises(function() {
-		fc.ignore('');
+		fc.unsubscribe('');
 	});
 });
 
-test('Correct signalName argument accepted', function() {
-	fc.listen('test', function() {});
-	ok(fc.ignore('test'));
+test('Correct messageName argument accepted', function() {
+	fc.subscribe('test', function() {});
+	ok(fc.unsubscribe('test'));
 });
