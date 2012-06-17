@@ -1,43 +1,49 @@
-================================================================================
+--------------------------------------------------------------------------------
 Fat Controller
-================================================================================
-
-Fat Controller is a JS implementation of a publish-subscribe service.
-Using a pub-sub service loosens coupling between system modules.
-
- - `Basic Usage`_
- - `Subscribe`_
- - `Publish`_
- - `Unsubscribe`_
- - `Registry`_
-
---------------------------------------------------------------------------------
-Basic Usage
 --------------------------------------------------------------------------------
 
-Fat Controller's two most import functionalities are publishing messages
-(``fc.publish``) and subscribing to messages (``fc.subscribe``).
+A JS publish-subscribe messaging system, which:
+
+- **simplifies communication** between modules,
+- **decouples** system modules, and
+- enables a cleaner style of **event-driven programming**.
+
+Documentation:
+
+- `Basic Example`_
+- `Subscribe`_
+- `Publish`_
+- `Unsubscribe`_
+- `Message Syntax`_
+- `Registry`_
+
+--------------------------------------------------------------------------------
+Basic Example
+--------------------------------------------------------------------------------
+
+Fat Controller's two most import functionalities are publishing messages and 
+subscribing to messages.
 
 ::
-  fc.subscribe('delicious_pie_has_been_baked', function() {
-	console.log('Yum, delicious pie!')
+
+  // Subscribe to a specific message and associate our handler with it
+  fc.subscribe('delicious_pie:is_ready', function() { 
+      console.log('The pie is ready!'); 
   });
-
-  fc.publish('delicious_pie_has_been_baked');
-
-In the above example, ``fc.subscribe`` is used to subscribe to messages about
-baking pies and associates them with our callback.
-``fc.publish`` then notifies Fat Controller that the pie is baked, which
-causes the callback to be executed and our message is logged.
+  
+  // Publish the same message, which triggers our handler
+  fc.publish('delicious_pie:is_ready');
+  
+  // Now our handler gets called and "The pie is ready!" is logged to the console
 
 --------------------------------------------------------------------------------
-Subscribe
+Publish
 --------------------------------------------------------------------------------
 // 	fc.publish(message[, data])
 // 		Publish :message to all subscribers.
 
 --------------------------------------------------------------------------------
-Publish
+Subscribe
 --------------------------------------------------------------------------------
 // 	fc.subscribe(message, callback[, thisArg])
 // 		Listen for :message, calling :callback when the signal is received.
@@ -47,6 +53,11 @@ Unsubscribe
 --------------------------------------------------------------------------------
 // 	fc.unsubscribe(message)
 // 		Remove any subscriber listening for :message.
+
+--------------------------------------------------------------------------------
+Message Syntax
+--------------------------------------------------------------------------------
+// 	'namespace:event:identifier'
 
 --------------------------------------------------------------------------------
 Registry
