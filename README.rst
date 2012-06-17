@@ -16,19 +16,18 @@ Basic Usage
 --------------------------------------------------------------------------------
 
 Fat Controller's two most import functionalities are publishing messages
-(```fc.publish```) and subscribing to messages (```fc.subscribe```).
+(``fc.publish``) and subscribing to messages (``fc.subscribe``).
 
-```javascript
-fc.subscribe('delicious_pie_has_been_baked', function() {
+::
+  fc.subscribe('delicious_pie_has_been_baked', function() {
 	console.log('Yum, delicious pie!')
-});
+  });
 
-fc.publish('delicious_pie_has_been_baked');
-```
+  fc.publish('delicious_pie_has_been_baked');
 
-In the above example, ```fc.subscribe``` is used to subscribe to messages about
+In the above example, ``fc.subscribe`` is used to subscribe to messages about
 baking pies and associates them with our callback.
-```fc.publish``` then notifies Fat Controller that the pie is baked, which
+``fc.publish`` then notifies Fat Controller that the pie is baked, which
 causes the callback to be executed and our message is logged.
 
 --------------------------------------------------------------------------------
