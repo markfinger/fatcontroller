@@ -82,7 +82,7 @@ window.fc = (function() {
 	////////// Helper functions for the public API //////////
 
 	function _registerListener(listener) {
-		// Todo: internal docs
+		// Adds :listener to the listener registry
 
 		var listenerList = _registry[listener.signalName];
 
@@ -95,21 +95,14 @@ window.fc = (function() {
 	}
 
 	function _transmit(signal) {
-		// Todo: internal docs
+		// Passes :signal to each listener listening for :signal.signalName
 
 		var listenerList = _registry[signal.signalName];
 
-		if (!listenerList)
-			throw new Error(
-				'fc.signal: no listeners for "' + signal.signalName + '"'
-			);
-
-		// TODO: replace this with an Array.map call
-		for (var i=0; i<listenerList.length; i++) {
-			var listener = listenerList[i];
+		listenerList.map(function(listener) {
 			// Assign listener.context as callback's `this`
-			listener.callback.call(listener.context, signal);
-		}
+			listener.callback.call(listener.context, signal)
+		});
 
 		return signal;
 	}
@@ -191,7 +184,8 @@ window.fc = (function() {
 	}
 
 	function _removeIdentifier(signalName) {
-		// Remove the identifier from the signalName
+		// Remove the identifier from :signalName
+
 		var signalTokens = _splitSignalName(signalName);
 
 		if (signalTokens.length == 1)
@@ -201,13 +195,13 @@ window.fc = (function() {
 	}
 
 	function _getIdentifier(signalName) {
-		// Remove the identifier from the signalName
+		// Return the identifier from :signalName if possible
+
 		var signalTokens = _splitSignalName(signalName);
 
-		return signalTokens.length == 3 ? signalTokens[2] : undefined;
+		if (signalTokens.length == 3)
+			return signalTokens[2];
 	}
-
-	///////////////// Public API instantiation ////////////////
 
 	// Present a simple API by only returning public methods.
 	// Stylistically, underscores should be prepended to any private
