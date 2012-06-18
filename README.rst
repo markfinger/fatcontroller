@@ -15,6 +15,7 @@ Documentation:
 - `Publish`_
 - `Unsubscribe`_
 - `Message Syntax`_
+- `Signal Objects`_
 - `Registry`_
 
 --------------------------------------------------------------------------------
@@ -39,25 +40,47 @@ subscribing to messages.
 --------------------------------------------------------------------------------
 Publish
 --------------------------------------------------------------------------------
-// 	fc.publish(message[, data])
-// 		Publish :message to all subscribers.
+
+``fc.publish(message[, data])``
+
+Publish a message to any subscribers who are listening for that specific 
+message.
+
+- ``message`` - a string identifying the event to publish.
+- ``data`` - an optional variable to pass to each subscriber's callback.
 
 --------------------------------------------------------------------------------
 Subscribe
 --------------------------------------------------------------------------------
-// 	fc.subscribe(message, callback[, thisArg])
-// 		Listen for :message, calling :callback when the signal is received.
+
+``fc.subscribe(message, callback[, thisArg])``
+
+Subscribe to events concerning a specific message. When the event occurs the 
+provided function will be called.
+
+- ``message`` - a string identifying the event to listen for.
+- ``callback`` - a function which will receive a `Signal Objects`_.
+- ``thisArg`` - an optional argument which will be assigned as the ``this`` 
+object for ``callback``.
 
 --------------------------------------------------------------------------------
 Unsubscribe
 --------------------------------------------------------------------------------
+
 // 	fc.unsubscribe(message)
 // 		Remove any subscriber listening for :message.
 
 --------------------------------------------------------------------------------
 Message Syntax
 --------------------------------------------------------------------------------
+
 // 	'namespace:event:identifier'
+
+--------------------------------------------------------------------------------
+Signal Objects
+--------------------------------------------------------------------------------
+
+//   'namespace:event:identifier'
 
 --------------------------------------------------------------------------------
 Registry
