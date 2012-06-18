@@ -1,6 +1,4 @@
---------------------------------------------------------------------------------
-Fat Controller
---------------------------------------------------------------------------------
+# Fat Controller
 
 A JS publish-subscribe messaging system, which:
 
@@ -18,28 +16,24 @@ Documentation:
 - `Signal Objects`_
 - `Registry`_
 
---------------------------------------------------------------------------------
-Basic Example
---------------------------------------------------------------------------------
+# Basic Example
 
 Fat Controller's two most import functionalities are publishing messages and 
 subscribing to messages.
 
-::
+```javascript
+// Subscribe to a specific message and associate our handler with it
+fc.subscribe('delicious_pie:is_ready', function() { 
+    console.log('The pie is ready!'); 
+});
 
-  // Subscribe to a specific message and associate our handler with it
-  fc.subscribe('delicious_pie:is_ready', function() { 
-      console.log('The pie is ready!'); 
-  });
-  
-  // Publish the same message, which triggers our handler
-  fc.publish('delicious_pie:is_ready');
-  
-  // Now our handler gets called and "The pie is ready!" is logged to the console
+// Publish the same message, which triggers our handler
+fc.publish('delicious_pie:is_ready');
 
---------------------------------------------------------------------------------
-Publish
---------------------------------------------------------------------------------
+// Now our handler gets called and "The pie is ready!" is logged to the console
+```
+
+# Publish
 
 ``fc.publish(message[, data])``
 
@@ -50,9 +44,7 @@ message.
 
 ``data`` an optional variable to pass to each subscriber's callback.
 
---------------------------------------------------------------------------------
-Subscribe
---------------------------------------------------------------------------------
+# Subscribe
 
 ``fc.subscribe(message, callback[, thisArg])``
 
@@ -65,29 +57,25 @@ provided function will be called.
 
 ``thisArg`` an optional argument which will be assigned as the ``this`` object for ``callback``.
 
---------------------------------------------------------------------------------
-Unsubscribe
---------------------------------------------------------------------------------
+# Unsubscribe
 
 ``fc.unsubscribe(message)``
 
 Removes any subscribers listening for a specific message.
 
---------------------------------------------------------------------------------
-Message Syntax
---------------------------------------------------------------------------------
+
+# Message Syntax
 
 // 	'namespace:event:identifier'
 
---------------------------------------------------------------------------------
-Signal Objects
---------------------------------------------------------------------------------
+
+# Signal Objects
 
 //   'namespace:event:identifier'
 
---------------------------------------------------------------------------------
-Registry
---------------------------------------------------------------------------------
+
+# Registry
+
 ``fc.registry()``
 
 Returns an associative array containing all subscribers. Subscribers are grouped 
