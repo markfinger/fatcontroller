@@ -46,8 +46,9 @@ Publish
 Publish a message to any subscribers who are listening for that specific 
 message.
 
-- ``message`` - a string identifying the event to publish.
-- ``data`` - an optional variable to pass to each subscriber's callback.
+``message`` a string identifying the event to publish.
+
+``data`` an optional variable to pass to each subscriber's callback.
 
 --------------------------------------------------------------------------------
 Subscribe
@@ -58,17 +59,19 @@ Subscribe
 Subscribe to events concerning a specific message. When the event occurs the 
 provided function will be called.
 
-- ``message`` - a string identifying the event to listen for.
-- ``callback`` - a function which will receive a `Signal Objects`_.
-- ``thisArg`` - an optional argument which will be assigned as the ``this`` 
-object for ``callback``.
+``message`` a string identifying the event to listen for.
+
+``callback`` a function which will receive a `Signal Objects`_.
+
+``thisArg`` an optional argument which will be assigned as the ``this`` object for ``callback``.
 
 --------------------------------------------------------------------------------
 Unsubscribe
 --------------------------------------------------------------------------------
 
-// 	fc.unsubscribe(message)
-// 		Remove any subscriber listening for :message.
+``fc.unsubscribe(message)``
+
+Removes any subscribers listening for a specific message.
 
 --------------------------------------------------------------------------------
 Message Syntax
@@ -85,5 +88,7 @@ Signal Objects
 --------------------------------------------------------------------------------
 Registry
 --------------------------------------------------------------------------------
-// 	fc.registry()
-// 		Returns an associative array containing all subscribers.
+``fc.registry()``
+
+Returns an associative array containing all subscribers. Subscribers are grouped 
+by the message they are listening for.
