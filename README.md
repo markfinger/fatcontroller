@@ -46,7 +46,7 @@ Publish a message to any subscribers who are listening for that specific
 message.
 
 **Arguments**
-- ``message`` a string identifying the event to publish.
+- ``message`` a string identifying the event to publish. [Message syntax](#message-syntax).
 - ``data`` an optional variable which is [passed to the callback](#message-objects) of each subscriber.
 
 
@@ -57,7 +57,7 @@ message.
 Subscribe to a specific message, the provided function is called when a matching message is published.
 
 **Arguments**
-- ``message`` a string identifying the event to listen for.
+- ``message`` a string identifying the event to listen for. [Message syntax](#message-syntax).
 - ``callback`` a function which is called when a message is published which matches
   the argument ``message``. Callbacks receive a [message object](#message-objects) as the first argument.
 - ``thisArg`` an optional argument which ``callback`` will receive as it's 'this' variable.
@@ -73,6 +73,12 @@ Using [message identifiers](#message-syntax) allows you to easily unsubscribe a 
 
 
 ### Message Syntax
+
+Fat Controller accepts strings as messages, for example 'object saved' as containing alphanumeric characters, dashes, underscores and colons.
+Messages can be as simple as 'object saved', although this can increase 
+
+Messages should be concise and informative.
+Messages should use namespaces to improve readability, indentifiers are useful and help to unsubscribe.
 
 The messages sent by Fat Controller can contain alphanumeric characters, dashes, underscores and colons. 
 
