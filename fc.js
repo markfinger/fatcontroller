@@ -126,9 +126,9 @@ window.fc = (function() {
 		if (typeof message != 'string')
 			throw new TypeError('fc.publish: `message` must be a string.');
 
-		// Case-insensitive search for alphanumeric characters, underscores,
+		// Case-insensitive test for alphanumeric characters, underscores,
 		// dashes and colons
-		if (message.search(/^[a-z0-9_/:/-]+$/i) == -1)
+		if (!/^[a-z0-9_/:/-]+$/i.test(message))
 			throw new Error(
 				'fc.publish: `message` must be a string containing at ' +
 				'least one character, and composed only of alphanumeric ' +
