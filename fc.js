@@ -127,12 +127,12 @@ window.fc = (function() {
 			throw new TypeError('fc.publish: `message` must be a string.');
 
 		// Case-insensitive test for alphanumeric characters, underscores,
-		// dashes and colons
-		if (!/^[a-z0-9_/:/-]+$/i.test(message))
+		// spaces, colons, and dashes
+		if (!/^[a-z0-9_/ /:/-]+$/i.test(message))
 			throw new Error(
 				'fc.publish: `message` must be a string containing at ' +
 				'least one character, and composed only of alphanumeric ' +
-				'characters, underscores, dashes and colons.'
+				'characters, underscores, spaces, colons, and dashes.'
 			);
 
 		// Ensure there are at most 3 colons in :message
