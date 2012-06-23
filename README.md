@@ -85,7 +85,7 @@ Messages used with Fat Controller can optionally take advantage of a syntax whic
 into specific tokens, delimited by colons. Messages are tokenised into *namespaces*, *events*, and 
 *identifiers*, for example: 'namespace:event:identifier'. *Namespaces* improve the readability of 
 a message and prevent the chance of multiple events with a similar name. *Identifiers* are used to 
-specify a specific subscriber when unsubscribing from a message.
+specify a particular subscriber when unsubscribing them.
 
 For example, if a module named 'waiter' was subscribing for another module 'chef' to publish a 
 message 'prepared-meal', the subscription message from 'waiter' would be ``chef:prepared-meal:waiter`` 
@@ -103,8 +103,8 @@ fc.publish('chef:prepared-meal');
 fc.unsubscribe('chef:prepared-meal:waiter')
 ```
 
-Namespaces are useful in most cases as they drastically improve the readibility of a 
-message. Identifiers main use is when an event has many subscribers and you need to 
+*Namespaces* are useful in most cases as they drastically improve the readibility of a 
+message. The main use of *identifiers* is when an event has multiple subscribers and you need to 
 unsubscribe only one.
 
 Message Objects
