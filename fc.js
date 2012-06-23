@@ -127,13 +127,13 @@ window.fc = (function() {
 
 		// Ensuring message is of type string
 		if (typeof message != 'string')
-			throw new TypeError('fc.publish: `message` must be a string.');
+			throw new TypeError('fc._checkMessage: `message` must be a string.');
 
 		// Case-insensitive test for alphanumeric characters, underscores,
 		// spaces, colons, and dashes
 		if (!/^[a-z0-9_/ /:/-]+$/i.test(message))
 			throw new Error(
-				'fc.publish: `message` must be a string containing at ' +
+				'fc._checkMessage: `message` must be a string containing at ' +
 				'least one character, and composed only of alphanumeric ' +
 				'characters, underscores, spaces, colons, and dashes.'
 			);
@@ -141,7 +141,7 @@ window.fc = (function() {
 		// Ensure there are at most 3 colons in :message
 		if (_splitMessage(message).length > 3)
 			throw new Error(
-				'fc.publish: `message` may contain at most three colons, ' +
+				'fc._checkMessage: `message` may contain at most three colons, ' +
 				'example: `namespace:event:identifier`.'
 			);
 
@@ -152,7 +152,7 @@ window.fc = (function() {
 		// Ensure :callback is a function
 
 		if (typeof callback != 'function')
-			throw new TypeError('fc.subscribe: `callback` must be a function.');
+			throw new TypeError('fc._checkCallback: `callback` must be a function.');
 
 		return callback;
 	}
@@ -162,7 +162,7 @@ window.fc = (function() {
 
 		if (!_undefinedOrObject(data))
 			throw new TypeError(
-				'fc.publish: `data` must be either undefined or an object.'
+				'fc._checkData: `data` must be either undefined or an object.'
 			);
 
 		return data;
