@@ -142,8 +142,8 @@ test('can receive a variety of different `this` arguments each of which becomes 
 test('callback has access to signal object', 2, function() {
 	var messageName = 'some_namespace4:some_event4:some_identifier4',
 		callback = function(signal) {
-			ok(signal.data.thisShouldBeTrue, 'this should execute');
-			ok(signal.data.thisShouldBeNine === 9, 'this should execute');
+			ok(signal.data.thisShouldBeTrue, 'this should be true');
+			ok(signal.data.thisShouldBeNine === 9, 'these should be equal');
 		},
 		data = {
 			thisShouldBeTrue: true,
@@ -155,7 +155,7 @@ test('callback has access to signal object', 2, function() {
 });
 
 ////////////////////////////////////////////////////////////////////////////////
-//                                 fc.unsubscribe                                  //
+//                                 fc.unsubscribe                             //
 ////////////////////////////////////////////////////////////////////////////////
 
 
