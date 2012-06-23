@@ -48,7 +48,9 @@ message.
 
 **Arguments:**
 - ``message`` a string identifying the event to publish. [Message syntax](#message-syntax).
-- ``data`` an optional variable which is [passed to the callback](#message-objects) of each subscriber.
+- ``data`` an optional variable which is [passed to the callback](#message-objects) of each subscriber. 
+  The payload is cloned using JSON - to maintain the payload's immutability - so only serialisable contents should 
+  be passed.
 
 
 Subscribe
