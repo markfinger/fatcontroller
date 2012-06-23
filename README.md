@@ -81,32 +81,31 @@ Message Syntax
 Fat Controller accepts strings as messages, for example 'object saved'. Messages 
 may contain alphanumeric characters, underscores, spaces, colons, and dashes.
 
-**Message namespaces**
+Messages used with Fat Controller can optionally take advantage of a syntax which splits a message 
+into specific tokens, delimited by colons. Messages are tokenised into *namespaces*, *events*, and 
+*identifiers*, for example: 'namespace:event:identifier'. *Namespaces* improve the readability of 
+a message and prevent the chance of multiple events with a similar name. *Identifiers* are used to 
+specify a specific subscriber when unsubscribing from a message.
 
-While using a simple message such as 'object saved' will work fine during the early
-stages of development, it will begin to cause issues as a system's complexity increases.
-Fat Controller's messages use a specific syntax which can tokenise a message into 
-components each of which is split with a colon.
+For example, if a module named 'waiter' was subscribing for another module 'chef' to publish a 
+message 'prepared-meal', the subscription message from 'waiter' would be ``chef:prepared-meal:waiter`` 
+and the published message from 'chef' would be ``chef:prepared-meal``.
 
-For example, if you have to two modules ``chef`` and ``waiter``, with waiter waiting
-for the chef to finish cooking a meal, the message name would be 
-``chef:finished-cooking``. When ``chef`` publishes the subscribed message, ``waiter`` 
-would then receive the message and respond suitably. Prepending an event with a 
-namespace improves the readability and maintainability of message names.
+```javascript
+// `waiter` listens for `chef` to publish a specific message
+fc.subscribe('chef:prepared-meal:waiter', waiter.preparedMealHandler);
 
-**Message identifiers**
+// `chef` publishes the event and waiter.preparedMealHandler is called. 
+fc.publish('chef:prepared-meal');
 
-If multiple modules have subscribed to a single message, unsubscribing a single 
-subscriber can be problematic. Messages identifiers solve this problem by allowing a 
-third token to be inferred. 
+// Only the subscription from `waiter` is removed.
+// Any other subscriptions for 'chef:prepared-meal' continue.
+fc.unsubscribe('chef:prepared-meal:waiter')
+```
 
-Extending the ``chef`` and ``waiter`` example to include a ``dish-washer`` module,
-we would end up with both ``dish-washer`` and ``waiter`` subscribing to 
-``chef:finished-cooking``. If we wanted to unsubscribe ``waiter``, but have 
-``dish-washer`` continue subscribing, we would have to unsubscribe both, then
-subscribe ``dish-washer`` again. By using a more explicit message 
-``chef:finished-cooking:waiter`` we can unsubscribe just the ``waiter`` module, 
-leaving ``dish-washer`` to continue responding to events.
+Namespaces are useful in most cases as they drastically improve the readibility of a 
+message. Identifiers main use is when an event has many subscribers and you need to 
+unsubscribe only one.
 
 Message Objects
 --------------------------------------------------
