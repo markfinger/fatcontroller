@@ -139,13 +139,15 @@ test('can receive a variety of different `this` arguments each of which becomes 
 	fc.publish('test5');
 });
 
-test('callback has access to signal object', 1, function() {
+test('callback has access to signal object', 2, function() {
 	var messageName = 'some_namespace4:some_event4:some_identifier4',
 		callback = function(signal) {
-			signal.data.testFunction();
+			ok(signal.data.thisShouldBeTrue, 'this should execute');
+			ok(signal.data.thisShouldBeNine === 9, 'this should execute');
 		},
 		data = {
-			testFunction: function() { ok(true, 'this should execute'); }
+			thisShouldBeTrue: true,
+			thisShouldBeNine: 9
 		};
 
 	fc.subscribe(messageName, callback);

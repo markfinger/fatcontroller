@@ -103,7 +103,8 @@ window.fc = (function() {
 	}
 
 	function _publishMessage(message) {
-		// Passes :message to each subscriber listening for :message.name
+		// Passes a clone of :message to each subscriber listening
+		// for :message.name
 
 		var subscriberList = _registry[message.name];
 
@@ -111,9 +112,9 @@ window.fc = (function() {
 			// If subscriber has a contextual `this` value to apply, assign it
 			// as subscriber.callback's `this`
 			if (subscriber.thisArg !== undefined)
-				subscriber.callback.call(subscriber.thisArg, message);
+				subscriber.callback.call(subscriber.thisArg, _clone(message));
 			else
-				subscriber.callback(message);
+				subscriber.callback(_clone(message));
 		});
 
 		return message;
@@ -168,6 +169,12 @@ window.fc = (function() {
 	}
 
 	///////////////// Utility functions ////////////////
+
+	function _clone(obj) {
+		// Returns a clone of :obj
+
+		return JSON.parse(JSON.stringify(obj))
+	}
 
 	function _undefinedOrObject(obj) {
 		// Returns true if :obj is either undefined or an object
