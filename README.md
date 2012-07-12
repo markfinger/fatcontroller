@@ -17,6 +17,7 @@ A publish-subscribe messaging system in Javascript, which:
 - [Message Syntax](#message-syntax)  
 - [Message Objects](#message-objects)  
 - [Registry of Subscribers](#registry)  
+- [Dependencies](#dependencies)
 
 
 Basic Example
@@ -135,3 +136,13 @@ by the message (namespace and event) they are listening for.
 - ``callback`` the function executed when a matching message is published.
 - ``identifier`` any identifier fragment contained within the subscribed message.
 - ``thisArg`` assigned as the 'this' object of ``callback``.
+
+Dependencies
+--------------------------------------------------
+
+Fat Controller requires [JSON encoding and decoding](http://en.wikipedia.org/wiki/JSON#Native_encoding_and_decoding_in_browsers)
+and ES5's `Array.forEach` and `Array.filter`. If support for legacy browsers is
+required, [Douglas Crockford's json2.js](https://github.com/douglascrockford/JSON-js/)
+and an [ES5 shim](https://github.com/kriskowal/es5-shim/) are recommended.
+
+
