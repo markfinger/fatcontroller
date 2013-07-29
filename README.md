@@ -15,9 +15,7 @@ fc.off('some:event');
 // AMD usage
 
 require(['fatcontroller'], function(fc) {
-
   // ...
-
 });
 
 
