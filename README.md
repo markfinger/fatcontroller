@@ -16,9 +16,7 @@ fc.off('some:event');
 
 require(['fatcontroller'], function(fc) {
 
-  fc.on('some:event', function() {
-    // ...
-  });
+  // ...
 
 });
 
@@ -33,7 +31,6 @@ require(['fatcontroller'], function(fc) {
 // and has an optional third (3) argument which will be the
 // function's `this` argument.
 fc.on('some:event', function() {
-  console.log(this); // thisArg
   // ...
 }, thisArg);
 
