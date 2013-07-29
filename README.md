@@ -1,4 +1,4 @@
-fatcontroller - simple pub sub (AMD & non-AMD compatible)
+fatcontroller - simple pub sub
 =========================================================
 
 ```javascript
@@ -11,6 +11,16 @@ fc.on('some:event', function() {
 fc.trigger('some:event');
 
 fc.off('some:event');
+
+// AMD usage
+
+require(['fatcontroller'], function(fc) {
+
+  fc.on('some:event', function() {
+    // ...
+  });
+
+});
 
 
 // ====================
