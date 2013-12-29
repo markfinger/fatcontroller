@@ -73,9 +73,9 @@
             var matchingContext = context && binding.callback === callback;
             if (
               (matchingCallback && matchingContext) ||
-                (!callback && matchingContext) ||
-                (!context && matchingCallback)
-              ) {
+              (!callback && matchingContext) ||
+              (!context && matchingCallback)
+            ) {
               bindings.splice(i, 1);
             }
           }
