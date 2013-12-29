@@ -47,10 +47,11 @@
   var off = function off(event) {
     var callback = undefined;
     var context = undefined;
+
     if (typeof event === 'object') {
-      event = obj.event;
-      callback = obj.callback;
-      context = obj.context;
+      callback = event.callback;
+      context = event.context;
+      event = event.event;
     }
 
     if (event && !callback && !context) {
