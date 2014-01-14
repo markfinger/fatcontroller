@@ -1,34 +1,25 @@
 // fatcontroller - simple pub-sub
 // https://github.com/markfinger/fatcontroller
 
-(function(root, factory) {
+define(['lodash'], function(_) {
 
-  if (typeof define === 'function' && define.amd) {
-    // AMD. Register as an anonymous module.
-    define(factory);
-  } else {
-    // Browser globals
-    root.fc = factory();
-  }
-
-}(this, function() {
-
-  // Registry of subscribers
+  // Registry of event bindings
   var registry = {
     // event: [
     //   {
-    //     callback: ...,
-    //     context: ...,
-    //     once: ...
+    //     callback: <function>,
+    //     once: <boolean>
     //   },
     //   ...
     // ],
+    // ...
   };
 
-  var on = function on(event, callback, context) {
+  var triggeredEvents = {};
+
+  var on = function on(event, callback) {
     var binding = {
       callback: callback,
-      context: context,
       once: false
     };
     if (registry[event] === undefined) {
@@ -44,77 +35,43 @@
     return binding;
   };
 
-  var off = function off(event) {
-    var callback = undefined;
-    var context = undefined;
+  var after = function after(event, callback) {
+    var binding = on.apply(this, arguments);
 
-    if (typeof event === 'object') {
-      callback = event.callback;
-      context = event.context;
-      event = event.event;
+    if (triggeredEvents[event]) {
+      callback();
     }
 
-    if (event && !callback && !context) {
-      delete registry[event];
-    } else if (callback || context) {
-      var subscribers;
-      if (event) {
-        subscribers = {};
-        subscribers[event] = registry[event]
+    return binding;
+  };
+
+  var off = function off(event, callback) {
+    if (registry.event) {
+      if (callback) {
+        _.remove(registry[event], function(binding) {
+          return binding.callback === callback;
+        });
       } else {
-        subscribers = registry;
-      }
-      for (var key in subscribers) {
-        if (subscribers.hasOwnProperty(key)) {
-          var bindings = subscribers[key];
-          for (var i = 0; i < bindings.length; i++) {
-            var binding = bindings[i];
-            var matchingCallback = callback && binding.callback === callback;
-            var matchingContext = context && binding.callback === callback;
-            if (
-              (matchingCallback && matchingContext) ||
-              (!callback && matchingContext) ||
-              (!context && matchingCallback)
-            ) {
-              bindings.splice(i, 1);
-            }
-          }
-          if (binding.length === 0) {
-            delete subscribers[key];
-          }
-        }
+        delete registry[event];
       }
     }
   };
 
   var trigger = function trigger(event) {
-    var args = Array.prototype.slice.call(arguments, 1);
-    var subscribers = registry[event];
-    if (subscribers !== undefined) {
-      for (var i = 0; i < subscribers.length; i++) {
-        var binding = subscribers[i];
-        if (binding.context !== undefined) {
-          binding.callback.call(binding.context, args);
-        } else {
-          binding.callback(args);
-        }
-        if (binding.once) {
-          subscribers.splice(i, 1);
-        }
-        if (subscribers.length === 0) {
-          delete registry[event];
-        }
-      }
+    _.invoke(registry[event], 'callback');
+
+    if (!triggeredEvents[event]) {
+      triggeredEvents[event] = undefined;
     }
-    return event;
   };
 
   return {
     on: on,
     once: once,
+    after: after,
     off: off,
     trigger: trigger,
     registry: registry
   };
 
-}));
+});
