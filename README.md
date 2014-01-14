@@ -1,3 +1,5 @@
+** Docs are out of date, check source for the current state of the API
+
 fatcontroller - simple pub sub
 =========================================================
 
