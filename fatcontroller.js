@@ -1,7 +1,11 @@
-// fatcontroller - simple pub-sub
+// fatcontroller - simple pub sub, with pre/post bindings and debug tracing
 // https://github.com/markfinger/fatcontroller
 
 define(['lodash'], function(_) {
+
+  var settings = {
+    debug: false
+  };
 
   // Registry of event bindings
   var registry = {
@@ -17,15 +21,39 @@ define(['lodash'], function(_) {
 
   var triggeredEvents = {};
 
+  var _trace = function _trace(action, identifier) {
+    var args = Array.prototype.slice.apply(arguments);
+    var extraArgs = args.slice(2);
+
+    // Log a stack trace, grouping it if possible
+    if (console.groupCollapsed && console.groupEnd && console.trace) {
+      console.groupCollapsed(action + ': ' + identifier);
+      if (extraArgs.length > 0) {
+        console.log('Extra arguments', extraArgs);
+      }
+      console.trace();
+      console.groupEnd();
+    } else {
+      console.log(action, identifier, extraArgs, Error().stack);
+    }
+  };
+
   var on = function on(event, callback) {
+    if (settings.debug) {
+      _trace('Event bound', event, callback);
+    }
+
     var binding = {
       callback: callback,
       once: false
     };
+
     if (registry[event] === undefined) {
       registry[event] = [];
     }
+
     registry[event].push(binding);
+
     return binding;
   };
 
@@ -46,6 +74,10 @@ define(['lodash'], function(_) {
   };
 
   var off = function off(event, callback) {
+    if (settings.debug) {
+      _trace('Event unbound', event, callback);
+    }
+
     if (registry.event) {
       if (callback) {
         _.remove(registry[event], function(binding) {
@@ -58,6 +90,10 @@ define(['lodash'], function(_) {
   };
 
   var trigger = function trigger(event) {
+    if (settings.debug) {
+      _trace('Event triggered', event);
+    }
+
     _.invoke(registry[event], 'callback');
 
     if (!triggeredEvents[event]) {
@@ -65,13 +101,13 @@ define(['lodash'], function(_) {
     }
   };
 
-  return {
+  return _.assign(settings, {
     on: on,
     once: once,
     after: after,
     off: off,
     trigger: trigger,
     registry: registry
-  };
+  });
 
 });
