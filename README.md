@@ -1,50 +1,58 @@
-** Docs are out of date, check source for the current state of the API
+fatcontroller
+=============
 
-fatcontroller - simple pub sub
-=========================================================
+*simple pub sub, with pre/post bindings and debug tracing*
 
 ```javascript
 // Basic usage
 
-fc.on('some:event', function() {
+define(['fc'], function(fc) {
+
+  fc.on('some:event', function() {
+    // ...
+  });
+
+  // ...
+
+  fc.trigger('some:event');
+
+});
+
+
+
+// Single use bindings are available
+fc.once('some:event', function() {
   // ...
 });
 
+
+
+// Post bindings can be triggered after an event occurred.
+// This is useful when asynchronous operations depend on state changes
+
 fc.trigger('some:event');
 
-fc.off('some:event');
-
-// AMD usage
-
-require(['fatcontroller'], function(fc) {
-  // ...
+fc.after('some:event', function() {
+   // ...
 });
 
 
-// ====================
-// ======= DOCS =======
-// ====================
 
-// Use `fc.on` to add bindings. It requires two args:
-// 1.  a string identifying the event,
-// 2.  a function to bind to the event,
-// and has an optional third (3) argument which will be the
-// function's `this` argument.
+// Debug tracing will log all the actions that are being sent through fatcontroller
+
+fc.debug = true;
+
 fc.on('some:event', function() {
   // ...
-}, thisArg);
+});
+// Logs a stack trace indicating where the binding originated from
 
-
-// Use `fc.trigger` to trigger calls to an event's bindings
 fc.trigger('some:event');
+// Logs a stack trace indicating where the event was triggered
 
 
-// Use `fc.off` to remove bindings. It requires one of three possible arguments,
-// 1.  an event string,
-// 2.  a bound function, or
-// 3.  the `this` argument used.
-// the position of an argument denotes it's role, you can pad the arguments with falsy values
+
+// Bindings can be removed by event name and callback
 fc.off('some:event');
-fc.off(null, someFunction);
-fc.off(null, null, thisArg);
+fc.off('some:event', someFunction);
 ```
