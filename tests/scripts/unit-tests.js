@@ -70,7 +70,7 @@ define([
 
     });
 
-    QUnit.test('Off removes a specific binding', 0, function() {
+    QUnit.test('Off removes a specific binding', 1, function() {
 
       var someFunction = function() {
         ok(false, 'should not be called');
@@ -81,7 +81,7 @@ define([
       };
 
       fc.on('test:off2', someFunction);
-      fc.off('test:off2', someOtherFunction);
+      fc.on('test:off2', someOtherFunction);
 
       fc.off('test:off2', someFunction);
 
