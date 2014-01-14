@@ -58,16 +58,16 @@ define(['lodash'], function(_) {
     return binding;
   };
 
-  var once = function once() {
-    var binding = on.apply(this, arguments);
+  var once = function once(event, callback) {
+    var binding = on(event, callback);
     binding.once = true;
     return binding;
   };
 
   var after = function after(event, callback) {
-    var binding = on.apply(this, arguments);
+    var binding = on(event, callback);
 
-    if (triggeredEvents[event]) {
+    if (triggeredEvents.hasOwnProperty(event)) {
       callback();
     }
 
@@ -79,7 +79,7 @@ define(['lodash'], function(_) {
       _logTrace('Event unbound', event, callback);
     }
 
-    if (registry.event) {
+    if (registry[event]) {
       if (callback) {
         _.remove(registry[event], function(binding) {
           return binding.callback === callback;
@@ -96,8 +96,9 @@ define(['lodash'], function(_) {
     }
 
     _.invoke(registry[event], 'callback');
+    _.remove(registry[event], 'once');
 
-    if (!triggeredEvents[event]) {
+    if (!triggeredEvents.hasOwnProperty(event)) {
       triggeredEvents[event] = undefined;
     }
   };
