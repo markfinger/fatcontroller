@@ -21,14 +21,15 @@ define(['lodash'], function(_) {
 
   var triggeredEvents = {};
 
-  var _trace = function _trace(action, identifier) {
-    var args = Array.prototype.slice.apply(arguments);
-    var extraArgs = args.slice(2);
+  var _logTrace = function _logTrace(action, identifier) {
+    // Cross-browser stack tracing
+
+    var extraArgs = Array.prototype.slice.call(arguments, 2);
 
     // Log a stack trace, grouping it if possible
     if (console.groupCollapsed && console.groupEnd && console.trace) {
       console.groupCollapsed(action + ': ' + identifier);
-      if (extraArgs.length > 0) {
+      if (extraArgs.length) {
         console.log('Extra arguments', extraArgs);
       }
       console.trace();
@@ -40,7 +41,7 @@ define(['lodash'], function(_) {
 
   var on = function on(event, callback) {
     if (settings.debug) {
-      _trace('Event bound', event, callback);
+      _logTrace('Event bound', event, callback);
     }
 
     var binding = {
@@ -75,7 +76,7 @@ define(['lodash'], function(_) {
 
   var off = function off(event, callback) {
     if (settings.debug) {
-      _trace('Event unbound', event, callback);
+      _logTrace('Event unbound', event, callback);
     }
 
     if (registry.event) {
@@ -91,7 +92,7 @@ define(['lodash'], function(_) {
 
   var trigger = function trigger(event) {
     if (settings.debug) {
-      _trace('Event triggered', event);
+      _logTrace('Event triggered', event);
     }
 
     _.invoke(registry[event], 'callback');
