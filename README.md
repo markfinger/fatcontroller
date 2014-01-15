@@ -3,10 +3,25 @@ fatcontroller
 
 **Simple pub sub, with pre/post bindings and debug tracing**
 
-```javascript
-// Basic usage
+### Installation and basic usage
 
-define(['fc'], function(fc) {
+Install via bower: `bower install --save fatcontroller`
+
+```javascript
+// Add to require config
+
+require.config({
+  packages: [{
+    name: 'fc',
+    location: 'bower_components/fatcontroller'
+  }]
+});
+```
+
+```javascript
+// Access the package in AMD modules
+
+require(['fc'], function(fc) {
 
   fc.on('some:event', function() {
     // ...
@@ -15,9 +30,11 @@ define(['fc'], function(fc) {
   fc.trigger('some:event');
 
 });
+```
 
+### Documentation by example
 
-
+```javascript
 // Single use bindings are available
 
 fc.once('some:event', someFunction);
