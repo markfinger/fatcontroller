@@ -13,7 +13,7 @@ Install via bower: `bower install --save fatcontroller`
 require.config({
   packages: [{
     name: 'fc',
-    location: 'bower_components/fatcontroller'
+    location: '/path/to/bower_components/fatcontroller'
   }]
 });
 ```
