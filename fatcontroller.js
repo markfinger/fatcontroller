@@ -84,6 +84,25 @@
     return binding;
   };
 
+  var afterAll = function afterAll(events, callback) {
+    // Get the events that have not been triggered yet
+    events = _.filter(events, function(event) {
+      return !triggeredEvents.hasOwnProperty(event);
+    });
+
+    if (events.length) {
+      var afterEach = _.after(events.length, function() {
+        callback();
+      });
+
+      _.each(events, function(event) {
+        once(event, afterEach);
+      });
+    } else {
+      callback();
+    }
+  };
+
   var off = function off(event, callback) {
     if (settings.debug) {
       _logTrace('Event unbound', event, callback);
@@ -121,6 +140,7 @@
       on: on,
       once: once,
       after: after,
+      afterAll: afterAll,
       off: off,
       trigger: trigger,
       registry: registry

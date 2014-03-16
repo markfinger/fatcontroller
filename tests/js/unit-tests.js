@@ -51,6 +51,29 @@
 
   });
 
+  QUnit.test('AfterAll triggers after a succession of events', 2, function() {
+
+    var preTrigger = true;
+
+    var testFunc1 = function() {
+      ok(!preTrigger, 'this should be triggered after the events occur');
+    };
+
+    fc.afterAll(['test:afterAll1', 'test:afterAll2', 'test:afterAll3'], testFunc1);
+
+    fc.trigger('test:afterAll1');
+    fc.trigger('test:afterAll2');
+    preTrigger = false;
+    fc.trigger('test:afterAll3');
+
+    var testFunc2 = function() {
+      ok(!preTrigger, 'this should fire immediately');
+    };
+
+    fc.afterAll(['test:afterAll1', 'test:afterAll2'], testFunc2);
+
+  });
+
   QUnit.test('Off removes event bindings', 0, function() {
 
     var someFunction = function() {
