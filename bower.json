@@ -1,6 +1,6 @@
 {
   "name": "fatcontroller",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "simple pub sub, with pre/post bindings and debug tracing",
   "homepage": "http://github.com/markfinger/fatcontroller",
   "repository": {
