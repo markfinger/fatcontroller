@@ -11,12 +11,9 @@
   "ignore": [
     "**/.*",
     "node_modules",
-    "components"
+    "bower_components",
+    "tests"
   ],
-  "dependencies": {
-    "requirejs": ">=2.1.10",
-    "lodash": ">=2.4.1"
-  },
   "keywords": [
     "fatcontroller",
     "controller",
@@ -25,5 +22,10 @@
     "sub",
     "tracing",
     "debug"
-  ]
+  ],
+  "devDependencies": {
+    "lodash": "~2.4.1",
+    "qunit": "~1.14.0",
+    "underscore": "~1.6.0"
+  }
 }

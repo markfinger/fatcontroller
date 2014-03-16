@@ -3,33 +3,22 @@ fatcontroller
 
 **Simple pub sub, with pre/post bindings and debug tracing**
 
-### Installation and basic usage
+### Install
 
-Install via bower: `bower install --save fatcontroller`
+`bower install --save fatcontroller`
 
-```javascript
-// Add to require config
+### Dependencies
 
-require.config({
-  packages: [{
-    name: 'fc',
-    location: '/path/to/bower_components/fatcontroller'
-  }]
-});
-```
+- Lodash/Underscore
+
+### Basic Usage
 
 ```javascript
-// Access the package in AMD modules
-
-require(['fc'], function(fc) {
-
-  fc.on('some:event', function() {
-    // ...
-  });
-
-  fc.trigger('some:event');
-
+fc.on('some:event', function() {
+  // ...
 });
+
+fc.trigger('some:event');
 ```
 
 ### Documentation by example

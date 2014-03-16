@@ -1,7 +1,17 @@
 // fatcontroller - simple pub sub, with pre/post bindings and debug tracing
 // https://github.com/markfinger/fatcontroller
 
-define(['lodash'], function(_) {
+(function(root, factory) {
+
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(factory);
+  } else {
+    // Browser globals
+    root.fc = factory();
+  }
+
+})(this, function() {
 
   var settings = {
     debug: false
@@ -81,8 +91,8 @@ define(['lodash'], function(_) {
 
     if (registry[event]) {
       if (callback) {
-        _.remove(registry[event], function(binding) {
-          return binding.callback === callback;
+        registry[event] = _.filter(registry[event], function(binding) {
+          return binding.callback !== callback;
         });
       } else {
         delete registry[event];
@@ -96,20 +106,26 @@ define(['lodash'], function(_) {
     }
 
     _.invoke(registry[event], 'callback');
-    _.remove(registry[event], 'once');
+
+    registry[event] = _.filter(registry[event], function(binding) {
+      return !binding.once;
+    });
 
     if (!triggeredEvents.hasOwnProperty(event)) {
       triggeredEvents[event] = undefined;
     }
   };
 
-  return _.assign(settings, {
-    on: on,
-    once: once,
-    after: after,
-    off: off,
-    trigger: trigger,
-    registry: registry
-  });
+  return _.extend(
+    {
+      on: on,
+      once: once,
+      after: after,
+      off: off,
+      trigger: trigger,
+      registry: registry
+    },
+    settings
+  );
 
 });
