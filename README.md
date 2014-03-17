@@ -39,9 +39,9 @@ fc.trigger('some:event');
 // The binding will immediately be called as the event has occurred
 fc.after('some:event', someFunction);
 
-// Post bindings can also be triggered only after multiple events
-// have been triggered
-fc.afterAll(['some:event', 'another:event', 'and:another:event'], someFunction);
+// Post bindings can also defer the callback until multiple events have
+// all occurred
+fc.afterAll(['some:event', 'another:event', 'yet:another:event'], someFunction);
 
 
 // Debug tracing will trace and log all the actions that are
