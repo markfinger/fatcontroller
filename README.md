@@ -58,7 +58,6 @@ fc.trigger('some:event');
 
 
 // Bindings can be removed by event name and callback
-
 fc.off('some:event');
 fc.off('some:event', someFunction);
 ```
