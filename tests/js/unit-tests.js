@@ -72,6 +72,12 @@
 
     fc.afterAll(['test:afterAll1', 'test:afterAll2'], testFunc2);
 
+    var testFunc3 = function() {
+      ok(true, 'this should not fire');
+    };
+
+    fc.afterAll(['test:afterAllThatDoesNotFire', 'test:afterAll1'], testFunc3);
+
   });
 
   QUnit.test('Off removes event bindings', 0, function() {
