@@ -136,6 +136,7 @@
   };
 
   return _.extend(
+    settings,
     {
       on: on,
       once: once,
@@ -144,8 +145,7 @@
       off: off,
       trigger: trigger,
       registry: registry
-    },
-    settings
+    }
   );
 
 });
