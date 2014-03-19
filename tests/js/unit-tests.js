@@ -78,6 +78,13 @@
 
     fc.afterAll(['test:afterAllThatDoesNotFire', 'test:afterAll1'], testFunc3);
 
+    // Spam the triggered events to ensure there are no issues regarding the
+    // event count
+    fc.trigger('test:afterAll1');
+    fc.trigger('test:afterAll1');
+    fc.trigger('test:afterAll1');
+    fc.trigger('test:afterAll1');
+
   });
 
   QUnit.test('Off removes event bindings', 0, function() {
