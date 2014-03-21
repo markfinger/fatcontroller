@@ -1,7 +1,7 @@
 fatcontroller
 =============
 
-**Simple pub sub, with pre/post bindings and debug tracing**
+**js pub sub, with post bindings & stack tracing**
 
 ### Install
 
