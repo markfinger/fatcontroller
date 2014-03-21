@@ -1,4 +1,4 @@
-// fatcontroller - simple pub sub, with pre/post bindings and debug tracing
+// fatcontroller
 // https://github.com/markfinger/fatcontroller
 
 (function(root, factory) {
